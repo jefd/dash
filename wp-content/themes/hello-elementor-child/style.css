@@ -1,0 +1,64 @@
+/* 
+Theme Name: Hello Elementor Child
+Theme URI: https://github.com/elementor/hello-theme/
+Description: Hello Elementor Child is a child theme of Hello Elementor, created by Elementor team
+Author: Elementor Team
+Author URI: https://elementor.com/
+Template: hello-elementor
+Version: 1.0.1
+Text Domain: hello-elementor-child
+License: GNU General Public License v3 or later.
+License URI: https://www.gnu.org/licenses/gpl-3.0.html
+Tags: flexible-header, custom-colors, custom-menu, custom-logo, editor-style, featured-images, rtl-language-support, threaded-comments, translation-ready
+*/
+
+/*
+    Add your custom styles here
+*/
+
+/******************* Loader ************************/
+.loader {
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #555;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  -webkit-animation: spin 1s linear infinite;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+/******************* Loader ************************/
+
+
+/******************* Metric Data *******************/
+.stats-container {
+   text-align: center;
+}
+ .stat-wrapper {
+   display: inline-block;
+   text-align: left;
+   margin-left: 10px;
+   margin-right: 10px;
+ }
+ .stat-wrapper .label {
+    color: #358890;
+    /*font-size: 10px;*/
+    font-size: 18px;
+    font-weight: 600;
+    border-bottom: 2px solid #358890;
+    max-width: 130px;
+    width: 130px;
+    text-align: center;
+ }
+
+ .stat-wrapper .stat-value {
+    color: #094293;
+    font-size: 18px;
+    font-weight: 800;
+    text-align: center;
+ }
+/******************* Metric Data *******************/
