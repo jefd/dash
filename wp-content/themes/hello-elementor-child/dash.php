@@ -17,6 +17,13 @@ function metrics_dash_board($atts) {
     EOT;
 }
 
+add_action('rest_api_init', function () {
+    register_rest_route( 'dash/v1', '/(?P<repo>[a-z-]+)/(?P<metric>[a-z-]+)',array(
+        'methods'  => 'GET',
+        'callback' => 'get_metric_data'
+    ));
+});
+
 
 /************************************* Constants *******************************************/
 $REPOS = ["ufs-weather-model" => ["owner" => "ufs-community", "token" => $TOKEN],
@@ -360,12 +367,6 @@ function get_args($repo) {
 }
 
 
-add_action('rest_api_init', function () {
-    register_rest_route( 'dash/v1', '/(?P<repo>[a-z-]+)/(?P<metric>[a-z-]+)',array(
-        'methods'  => 'GET',
-        'callback' => 'get_metric_data'
-    ));
-});
 
 function get_metric_data($request) {
 
