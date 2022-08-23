@@ -1,6 +1,6 @@
 //const BASE_URL =  "https://epic.noaa.gov";
-//const BASE_URL =  "https://rayv-webix4.jpl.nasa.gov/devel/ep";
-const BASE_URL =  "";
+const BASE_URL =  "https://rayv-webix4.jpl.nasa.gov/devel/ep";
+//const BASE_URL =  "";
 const API_PATH = "/wp-json/dash/v1";
 
 const INITIAL_REPO = "ufs-weather-model";
@@ -8,11 +8,16 @@ const INITIAL_METRIC = "views";
 
 const CHART_OPTS = {
     'responsive':true,
-    legend: {
-        display: true,
-        labels: {
-            fontSize: 16,
-        }
+    plugins: {
+        legend: {
+            display: true,
+            position: 'top',
+            align: 'end',
+            labels: {
+                fontSize: 16,
+            }
+        },
+
     },
     scales: {
         y: {
@@ -183,13 +188,11 @@ function Dash(initialVnode) {
     /***********************************************************/
 
     /************************** View Functions ***********************/
-    function selectView(id, name, label, options, callback) {
+    function selectView(id, name,  options, callback) {
 
         let opts = options.map(function(option) {
             return m("option", {value: option.name}, option.title);
         });
-
-        opts = [m("option", {disabled: true, selected: true}, label)].concat(opts);
 
         return m("select", {id: id, name: name, onchange: callback}, opts);
     }
@@ -378,16 +381,16 @@ function Dash(initialVnode) {
     }
 
     function view(vnode) {
+        let repoLabel = m("label", {for: 'repo-select'}, "Repository");
+        let repoSelect = selectView('repo-select', 'repo-select', REPOS, updateRepo);
 
-
-        let repoSelect = selectView('repo-select', 'repo-select', 'Repository', REPOS, updateRepo);
-
-        let metricSelect = selectView('metric-select', 'metric-select', 'Metric', METRICS, updateMetric);
+        let metricLabel = m("label", {for: 'metric-select'}, "Metric");
+        let metricSelect = selectView('metric-select', 'metric-select', METRICS, updateMetric);
 
         let btn = buttonView('Submit', submitCallback);
 
-        let frm = formView('dash-form', 'dash-form', [repoSelect, metricSelect, btn]);
-        
+        let frm = formView('dash-form', 'dash-form', [repoLabel, repoSelect, metricLabel, metricSelect, btn]);
+
         let dv = null
 
         if (model.error)
@@ -406,7 +409,7 @@ function Dash(initialVnode) {
 
         return [
             frm, 
-            m("h1", {style: {"text-align": "center"}}, getFullTitle()),
+            m("h1", getFullTitle()),
             dv
         ];
 
