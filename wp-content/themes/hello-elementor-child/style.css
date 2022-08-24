@@ -36,29 +36,105 @@ Tags: flexible-header, custom-colors, custom-menu, custom-logo, editor-style, fe
 
 /******************* Metric Data *******************/
 .stats-container {
-   text-align: center;
+   text-align: left;
+    padding-top:14px;
+    padding-bottom:20px;
 }
  .stat-wrapper {
    display: inline-block;
    text-align: left;
    margin-left: 10px;
+   margin-right: 50px;
+ }
+ .stat-wrapper:nth-last-of-type {
    margin-right: 10px;
  }
  .stat-wrapper .label {
     color: #358890;
-    /*font-size: 10px;*/
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 17px;
+    font-weight: 700;
     border-bottom: 2px solid #358890;
-    max-width: 130px;
-    width: 130px;
-    text-align: center;
+    min-width: 175px;   
+    max-width: 400px;
+    text-align: left;
+    text-transform: uppercase;
  }
 
  .stat-wrapper .stat-value {
     color: #094293;
-    font-size: 18px;
-    font-weight: 800;
-    text-align: center;
+    font-size: 30px;
+    font-weight: 500;
+    text-align: left;
  }
+#dash-form {
+    width:100%;
+    display:block;
+    height:100px;
+    position: relative;
+}
+#dash-form label, #dash-form select, #dash-form button {
+    display:block;
+    position: absolute;
+}
+#dash-form label, #dash-form select {
+    width:30%;
+}
+#dash-form button,
+#dash-form button:focus {
+    width:142px;
+    border: none;
+    border-color:#0A4595;
+}
+#dash-form label {
+    top:0px;
+    color: #358890;
+    font-size:17px;
+    text-transform: uppercase;
+    font-weight:700;
+}
+#dash-form select {
+    color: #0A4595;
+    font-size: 18px;
+    font-weight: 600;
+}
+#dash-form select, #dash-form button {
+    top:26px;
+}
+#dash-form label:nth-of-type(1), #dash-form select:nth-of-type(1) {
+    left:0px;
+}
+#dash-form label:nth-of-type(2), #dash-form select:nth-of-type(2) {
+    left: Calc(30% + 20px);
+}
+#dash-form button {
+    left: Calc(60% + 40px);
+}
+@media screen and (max-width: 899px){
+    #dash-form {
+        height:240px;
+    }
+    #dash-form label:nth-of-type(1), #dash-form select:nth-of-type(1),
+    #dash-form label:nth-of-type(2), #dash-form select:nth-of-type(2),
+    #dash-form button {
+        display:block;
+        position: relative;
+        top: auto;
+        left: 0px;
+        margin-left:auto;
+        margin-right: auto;
+    }
+    #dash-form label:nth-of-type(1), #dash-form select:nth-of-type(1),
+    #dash-form label:nth-of-type(2), #dash-form select:nth-of-type(2) {
+        width:100%;
+        top: auto;
+        left: 0px;
+    }
+    #dash-form label {
+        margin-bottom: 7px;
+    }
+    #dash-form select, #dash-form button {
+        margin-bottom: 20px;
+    }
+}
 /******************* Metric Data *******************/
+
