@@ -12,7 +12,7 @@ const CHART_OPTS = {
         legend: {
             display: true,
             position: 'top',
-            align: 'end',
+            align: 'center',
             labels: {
                 fontSize: 16,
             }
