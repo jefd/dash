@@ -209,18 +209,18 @@ function Dash(initialVnode) {
             let c = d['count'];
             let u = d['uniques'];
 
-            return m("div.stats-container", 
+            return m("div.stats-container2", 
                 [
-                    m("div.stat-wrapper", 
+                    m("div.stat-wrapper2", 
                     [
-                        m("div.label", `Total ${name}`),
-                        m("div.stat-value", `${c}`)
+                        m("div.stat-label2", `Total ${name}`),
+                        m("div.stat-value2", `${c}`)
 
                     ]),
-                    m("div.stat-wrapper", 
+                    m("div.stat-wrapper2", 
                     [
-                        m("div.label", `Unique ${name}`),
-                        m("div.stat-value", `${u}`)
+                        m("div.stat-label2", `Unique ${name}`),
+                        m("div.stat-value2", `${u}`)
 
                     ]),
                 
