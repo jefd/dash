@@ -150,7 +150,7 @@ function Dash(initialVnode) {
             console.log("**** RESPONSE ****", data);
 		})
         .catch(function(e) {
-            model.error = e.code + ": Error loading data";
+            model.error = "Error loading data";
         })
 	}
 
@@ -182,7 +182,7 @@ function Dash(initialVnode) {
             console.log("**** RESPONSE ****", data);
 		})
         .catch(function(e) {
-            model.error = e.code + ": Error loading data";
+            model.error = "Error loading data";
         })
 	}
     /***********************************************************/
