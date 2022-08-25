@@ -35,7 +35,7 @@ Tags: flexible-header, custom-colors, custom-menu, custom-logo, editor-style, fe
 
 
 /******************* Metric Data *******************/
-.stats-container {
+div#metric-data.stats-container {
    text-align: left;
     padding-top:14px;
     padding-bottom:20px;

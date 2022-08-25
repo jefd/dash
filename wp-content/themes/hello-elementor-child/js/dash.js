@@ -209,7 +209,7 @@ function Dash(initialVnode) {
             let c = d['count'];
             let u = d['uniques'];
 
-            return m("div.stats-container", 
+            return m("div#metric-data.stats-container", 
                 [
                     m("div.stat-wrapper", 
                     [
