@@ -18,7 +18,7 @@ function metrics_dash_board($atts) {
 }
 
 add_action('rest_api_init', function () {
-    register_rest_route( 'dash/v1', '/(?P<repo>[a-z-]+)/(?P<metric>[a-z-]+)',array(
+    register_rest_route( 'dash/v1', '/(?P<owner>[a-z-]+)/(?P<repo>[a-z-]+)/(?P<metric>[a-z-]+)',array(
         'methods'  => 'GET',
         'callback' => 'get_metric_data'
     ));
@@ -26,9 +26,10 @@ add_action('rest_api_init', function () {
 
 
 /************************************* Constants *******************************************/
-$REPOS = ["ufs-weather-model" => ["owner" => "ufs-community", "token" => $TOKEN],
-          "ufs-srweather-app" => ["owner" => "ufs-community", "token" => $TOKEN],
-
+// map of repos to tokens
+$REPOS = [
+    ["owner" => "ufs-community", "repo" => "ufs-weather-model", "token" => $TOKEN],
+    ["owner" => "ufs-community", "repo" => "ufs-srweather-app", "token" => $TOKEN],
 ];
 
 // map of metric name to GitHub API path
@@ -42,6 +43,7 @@ $METRICS = ["views" => "/traffic/views",
 
 $NUMBER_TOP_CONTRIBUTORS = 3;
 /*******************************************************************************************/
+
 
 
 function mk_dataset($label, $color, $data){
@@ -341,11 +343,9 @@ function get_contributor_data($url, $args) {
 }
 
 
-function get_url($repo, $metric) {
-    global $REPOS;
+function get_url($owner, $repo, $metric) {
     global $METRICS;
 
-    $owner = $REPOS[$repo]["owner"];
     $path = $METRICS[$metric];
 
     $url = "https://api.github.com/repos/{$owner}/{$repo}{$path}";
@@ -353,10 +353,18 @@ function get_url($repo, $metric) {
 
 }
 
-function get_args($repo) {
-    global $REPOS;
+function get_args($owner, $repo) {
+    function get_token($owner, $repo) {
+        global $REPOS;
+        foreach ($REPOS as $item) {
+            if ($item["owner"] == $owner && $item["repo"] == $repo) {
+                return $item["token"];
+            }
+        }
+        return null;
+    }
 
-    $token = $REPOS[$repo]["token"];
+    $token = get_token($owner, $repo);
 
     $args = array(
         'headers' => array(
@@ -370,11 +378,13 @@ function get_args($repo) {
 
 function get_metric_data($request) {
 
+    $owner = $request['owner'];
     $repo = $request['repo'];
     $metric = $request['metric'];
 
-    $args = get_args($repo);
-    $url = get_url($repo, $metric);
+    $args = get_args($owner, $repo);
+
+    $url = get_url($owner, $repo, $metric);
 
     if ($metric == "views") {
         $data = get_view_chart_data($url, $args);
