@@ -378,6 +378,13 @@ function get_args($owner, $repo) {
 
 function get_metric_data($request) {
 
+    $start = $request->get_param('start');
+    $end = $request->get_param('end');
+
+    if (is_null($start) ) {
+        //exit();
+    }
+
     $owner = $request['owner'];
     $repo = $request['repo'];
     $metric = $request['metric'];
