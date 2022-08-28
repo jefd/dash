@@ -34,8 +34,8 @@ const CHART_OPTS = {
 };
 
 const REPOS = [
-    {owner: "ufs-community", name: 'ufs-weather-model', title: 'Weather Model'}, 
-    {owner: "ufs-community", name: 'ufs-srweather-app', title: 'Short Range Weather App'},
+    {owner: 'ufs-community', name: 'ufs-weather-model', title: 'Weather Model', start: '2022-08-27'}, 
+    {owner: 'ufs-community', name: 'ufs-srweather-app', title: 'Short Range Weather App', start: '2022-08-26'},
 ];
 
 const METRICS = [
@@ -71,6 +71,9 @@ const CONTRIBUTOR_DATA = {
 function Dash(initialVnode) {
 
     let model = {
+        selectedOwner: INITIAL_OWNER,
+        selectedRepo: INITIAL_REPO,
+        selectedMetric: INITIAL_METRIC,
         owner: INITIAL_OWNER,
         repo: INITIAL_REPO,
         metric: INITIAL_METRIC,
@@ -94,16 +97,32 @@ function Dash(initialVnode) {
         return m[name];
     }
 
+    function getStartDate(owner, repo) {
+        for (let idx in REPOS) {
+            let rep = REPOS[idx];
+            console.log(rep);
+            if (rep['owner'] === owner && rep['name'] === repo)
+                return rep['start'];
+        }
+    }
+
+    function now() {
+        d = new Date();
+        y = d.getDate() - 1;
+        d.setDate(y);
+        return d.toISOString().substring(0, 10);
+    }
+
     /******************** Update Functions *********************/
     function updateRepo(e) {
-        e.redraw = false;
-        model.owner = e.target.value.split('/')[0];
-        model.repo = e.target.value.split('/')[1];
+        //e.redraw = false;
+        model.selectedOwner = e.target.value.split('/')[0];
+        model.selectedRepo = e.target.value.split('/')[1];
     }
     
     function updateMetric(e) {
-        e.redraw = false;
-        model.metric = e.target.value;
+        //e.redraw = false;
+        model.selectedMetric = e.target.value;
     }
 
     function submitCallback(e) {
@@ -116,6 +135,9 @@ function Dash(initialVnode) {
 
         // For testing only
         //let url = "https://jsonplaceholder.typicode.com/todos/1";
+        model.owner = model.selectedOwner;
+        model.repo = model.selectedRepo;
+        model.metric = model.selectedMetric;
         let url = getUrl();
         updateData(url);
 
@@ -294,7 +316,11 @@ function Dash(initialVnode) {
 
     function buttonView(label, callback){
         return m("button", {type: "button", onclick: callback}, label);
+    }
 
+    function dateView(name, value, start, end) {
+        let attrs = {type: "date", id: name, name: name, value: value, min: start, max: end}
+        return m("input", attrs);
     }
 
     function contributorViewList(vnode) {
@@ -316,6 +342,7 @@ function Dash(initialVnode) {
         //return [h3, m("ol", {style: {display: "none"}}, children)];
 
     }
+
     function contributorViewTable(vnode) {
         let data = model.data;
         let count = data['count'];
@@ -383,7 +410,22 @@ function Dash(initialVnode) {
 
         let btn = buttonView('Submit', submitCallback);
 
-        let frm = formView('dash-form', 'dash-form', [repoLabel, repoSelect, metricLabel, metricSelect, btn]);
+        let s = getStartDate(model.owner, model.repo);
+
+        let n = now();
+        console.log('now: ' + n);
+        
+        let datev = null;
+
+        if (model.selectedMetric === 'views' || model.selectedMetric === 'clones') {
+            let strt = getStartDate(model.owner, model.selectedRepo);
+            datev = dateView('test', now(), strt, now());
+        }
+
+
+        let frm = formView('dash-form', 'dash-form', [repoLabel, repoSelect, metricLabel, metricSelect, datev, btn]);
+
+        console.log('start date: ' + s);
 
         let dv = null
 
