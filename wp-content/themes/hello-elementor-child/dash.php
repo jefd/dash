@@ -381,8 +381,11 @@ function get_metric_data($request) {
     $start = $request->get_param('start');
     $end = $request->get_param('end');
 
-    if (is_null($start) ) {
-        //exit();
+    // testing querystring parameters
+    if (! is_null($start) ) {
+        $response = new WP_REST_Response(['start' => $start]);
+        $response->set_status(200);
+        return $response;
     }
 
     $owner = $request['owner'];
