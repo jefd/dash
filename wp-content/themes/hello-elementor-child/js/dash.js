@@ -1,8 +1,9 @@
 //const BASE_URL =  "https://epic.noaa.gov";
-//const BASE_URL =  "https://rayv-webix4.jpl.nasa.gov/devel/ep";
-const BASE_URL =  "";
+const BASE_URL =  "https://rayv-webix4.jpl.nasa.gov/devel/ep";
+//const BASE_URL =  "";
 const API_PATH = "/wp-json/dash/v1";
 
+const INITIAL_OWNER = "ufs-community";
 const INITIAL_REPO = "ufs-weather-model";
 const INITIAL_METRIC = "views";
 
@@ -33,8 +34,8 @@ const CHART_OPTS = {
 };
 
 const REPOS = [
-    {name: 'ufs-weather-model', title: 'Weather Model'}, 
-    {name: 'ufs-srweather-app', title: 'Short Range Weather App'},
+    {owner: "ufs-community", name: 'ufs-weather-model', title: 'Weather Model'}, 
+    {owner: "ufs-community", name: 'ufs-srweather-app', title: 'Short Range Weather App'},
 ];
 
 const METRICS = [
@@ -70,8 +71,7 @@ const CONTRIBUTOR_DATA = {
 function Dash(initialVnode) {
 
     let model = {
-        selectedRepo: INITIAL_REPO, 
-        selectedMetric: INITIAL_METRIC,
+        owner: INITIAL_OWNER,
         repo: INITIAL_REPO,
         metric: INITIAL_METRIC,
         data: null,
@@ -81,10 +81,10 @@ function Dash(initialVnode) {
     };
 
     function getUrl() {
-        return `${BASE_URL}${API_PATH}/${model.repo}/${model.metric}`;
+        return `${BASE_URL}${API_PATH}/${model.owner}/${model.repo}/${model.metric}`;
     }
 
-    function getTitle(lst, name) {
+    function getName(lst, name) {
         let m = {};
 
         lst.forEach(function(obj) {
@@ -94,34 +94,21 @@ function Dash(initialVnode) {
         return m[name];
     }
 
-    function getFullTitle() {
-
-        let repoTitle = getTitle(REPOS, model.repo);
-        let metricTitle = getTitle(METRICS, model.metric);
-        return `${repoTitle} - ${metricTitle}`;
-    }
-
     /******************** Update Functions *********************/
     function updateRepo(e) {
         e.redraw = false;
-        model.selectedRepo = e.target.value;
-        //console.log(`${model.repo} - ${model.metric}`);
-        //console.log(e.target.options[e.target.selectedIndex].text);
+        model.owner = e.target.value.split('/')[0];
+        model.repo = e.target.value.split('/')[1];
     }
     
     function updateMetric(e) {
         e.redraw = false;
-        model.selectedMetric = e.target.value;
-        //console.log(`${model.repo} - ${model.metric}`);
-        //console.log(e.target);
-        //console.log(e.target.options[e.target.selectedIndex].text);
+        model.metric = e.target.value;
     }
 
     function submitCallback(e) {
         //e.preventDefault();
         //e.redraw = false;
-        model.repo = model.selectedRepo;
-        model.metric = model.selectedMetric;
 
         //let base = 'https://rayv-webix4.jpl.nasa.gov/devel/ep/wp-json/dash/v1/ufs-weather-model/views/';
 
@@ -137,7 +124,7 @@ function Dash(initialVnode) {
 	function initData(url) {
         model.loaded = false;
 		let headers = {};
-		console.log("**** sending request ****")
+		console.log("**** sending request ****" + url)
 		return m.request({
 			method: "GET",
 			url: url,
@@ -157,7 +144,7 @@ function Dash(initialVnode) {
 	function updateData(url) {
         model.loaded = false;
 		headers = {};
-		console.log("**** sending request 2 ****")
+		console.log("**** sending request 2 ****" + url)
 		return m.request({
 			method: "GET",
 			url: url,
@@ -191,7 +178,14 @@ function Dash(initialVnode) {
     function selectView(id, name,  options, callback) {
 
         let opts = options.map(function(option) {
-            return m("option", {value: option.name}, option.title);
+
+            if (option.hasOwnProperty('owner')) {
+                return m("option", {value: `${option.owner}/${option.name}`}, option.title);
+            }
+            else {
+                return m("option", {value: option.name}, option.title);
+            }
+
         });
 
         return m("select", {id: id, name: name, onchange: callback}, opts);
@@ -205,7 +199,7 @@ function Dash(initialVnode) {
     function metricDataView(vnode) {
         let d = model.data;
         if (model.metric === "views" || model.metric === "clones") {
-            let name = getTitle(METRICS, model.metric);
+            let name = getName(METRICS, model.metric);
             let c = d['count'];
             let u = d['uniques'];
 
@@ -268,7 +262,7 @@ function Dash(initialVnode) {
     function metricDataViewTable(vnode) {
         let d = model.data;
         if (model.metric === "views" || model.metric === "clones") {
-            let name = getTitle(METRICS, model.metric);
+            let name = getName(METRICS, model.metric);
             let c = d['count'];
             let u = d['uniques'];
 
@@ -409,7 +403,6 @@ function Dash(initialVnode) {
 
         return [
             frm, 
-            //m("h1", getFullTitle()),
             dv
         ];
 
