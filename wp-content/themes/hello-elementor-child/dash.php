@@ -28,8 +28,8 @@ add_action('rest_api_init', function () {
 /************************************* Constants *******************************************/
 // map of repos to tokens
 $REPOS = [
-    ["owner" => "ufs-community", "repo" => "ufs-weather-model", "token" => $TOKEN],
-    ["owner" => "ufs-community", "repo" => "ufs-srweather-app", "token" => $TOKEN],
+    ["owner" => "ufs-community", "name" => "ufs-weather-model", "token" => $TOKEN],
+    ["owner" => "ufs-community", "name" => "ufs-srweather-app", "token" => $TOKEN],
 ];
 
 // map of metric name to GitHub API path
@@ -357,7 +357,7 @@ function get_args($owner, $repo) {
     function get_token($owner, $repo) {
         global $REPOS;
         foreach ($REPOS as $item) {
-            if ($item["owner"] == $owner && $item["repo"] == $repo) {
+            if ($item["owner"] == $owner && $item["name"] == $repo) {
                 return $item["token"];
             }
         }
