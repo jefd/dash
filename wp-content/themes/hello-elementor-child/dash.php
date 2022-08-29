@@ -24,6 +24,28 @@ add_action('rest_api_init', function () {
     ));
 });
 
+add_action('rest_api_init', function () {
+    register_rest_route( 'dash/v1', '/repos',array(
+        'methods'  => 'GET',
+        'callback' => 'get_repo_list'
+    ));
+});
+
+function get_repo_list($response) {
+
+    $data = [
+        ['owner' => 'ufs-community', 'name' => 'ufs-weather-model', 'title' => 'Weather Model', 'minDate' => '2022-08-27'],
+        ['owner' => 'ufs-community', 'name' => 'ufs-srweather-app', 'title' => 'Short Range Weather App', 'minDate' => '2022-08-26'],
+    
+    ];
+
+    $response = new WP_REST_Response($data);
+    $response->set_status(200);
+
+    return $response;
+    
+}
+
 
 /************************************* Constants *******************************************/
 // map of repos to tokens
