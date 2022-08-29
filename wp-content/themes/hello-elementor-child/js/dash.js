@@ -34,8 +34,8 @@ const CHART_OPTS = {
 };
 
 const REPOS = [
-    {owner: 'ufs-community', name: 'ufs-weather-model', title: 'Weather Model', start: '2022-08-27'}, 
-    {owner: 'ufs-community', name: 'ufs-srweather-app', title: 'Short Range Weather App', start: '2022-08-26'},
+    {owner: 'ufs-community', name: 'ufs-weather-model', title: 'Weather Model', minDate: '2022-08-27'}, 
+    {owner: 'ufs-community', name: 'ufs-srweather-app', title: 'Short Range Weather App', minDate: '2022-08-26'},
 ];
 
 const METRICS = [
@@ -97,12 +97,12 @@ function Dash(initialVnode) {
         return m[name];
     }
 
-    function getStartDate(owner, repo) {
+    function getMinDate(owner, repo) {
         for (let idx in REPOS) {
             let rep = REPOS[idx];
             console.log(rep);
             if (rep['owner'] === owner && rep['name'] === repo)
-                return rep['start'];
+                return rep['minDate'];
         }
     }
 
@@ -154,7 +154,6 @@ function Dash(initialVnode) {
 		})
 		.then(function(data){
             model.data = data;
-            //model.data = dash_chart_data;
             model.loaded = true;
             console.log("**** RESPONSE ****", data);
 		})
@@ -173,17 +172,9 @@ function Dash(initialVnode) {
 			headers: headers,
 		})
 		.then(function(data){
-            if (model.metric === "releases") {
-                model.data = data;
-                //model.data = RELEASE_DATA;
-            }
-            else if (model.metric === "contributors") {
-                model.data = data;
-                //model.data = CONTRIBUTOR_DATA;
-            }
-            else {
-                model.data = data;
-                //model.data = dash_chart_data2;
+            model.data = data
+            if (! model.metric === "releases" && 
+                ! model.metric === "contributors") {
                 model.chart.data = model.data
                 model.chart.update();
             }
@@ -410,7 +401,7 @@ function Dash(initialVnode) {
 
         let btn = buttonView('Submit', submitCallback);
 
-        let s = getStartDate(model.owner, model.repo);
+        //let min = getMinDate(model.owner, model.repo);
 
         let n = now();
         console.log('now: ' + n);
@@ -418,14 +409,13 @@ function Dash(initialVnode) {
         let datev = null;
 
         if (model.selectedMetric === 'views' || model.selectedMetric === 'clones') {
-            let strt = getStartDate(model.owner, model.selectedRepo);
-            datev = dateView('test', now(), strt, now());
+            let min = getMinDate(model.owner, model.selectedRepo);
+            datev = dateView('test', now(), min, now());
         }
 
 
         let frm = formView('dash-form', 'dash-form', [repoLabel, repoSelect, metricLabel, metricSelect, datev, btn]);
 
-        console.log('start date: ' + s);
 
         let dv = null
 
