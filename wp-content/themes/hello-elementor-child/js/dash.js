@@ -180,21 +180,21 @@ function Dash(initialVnode) {
 
 	function getRepos() {
         let url = `${BASE_URL}${API_PATH}/repos/`;
-		console.log("**** sending request ****" + url)
+		console.log("**** sending request **** " + url)
 		return m.request(url);
 	}
 
     function getData(repos) {
-        console.log("**** RESPONSE ****", repos);
+        console.log("**** RESPONSE **** ", repos);
         model.repos = repos;
         model.minDate = getMinDate(model.owner, model.repo);
         let url = getUrl();
-		console.log("**** sending request ****" + url)
+		console.log("**** sending request **** " + url)
         return m.request(url);
     }
 
 	function setData(data) {
-        console.log("**** RESPONSE ****", data);
+        console.log("**** RESPONSE **** ", data);
         model.data = data;
         model.loaded = true;
 	}
@@ -210,7 +210,7 @@ function Dash(initialVnode) {
 
 	function updateData(url) {
 		headers = {};
-		console.log("**** sending request ****" + url)
+		console.log("**** sending request **** " + url)
 		return m.request({
 			method: "GET",
 			url: url,
@@ -224,7 +224,7 @@ function Dash(initialVnode) {
                 model.chart.update();
             }
             model.loaded = true;
-            console.log("**** RESPONSE ****", data);
+            console.log("**** RESPONSE **** ", data);
 		})
         .catch(function(e) {
             model.error = "Error loading data";
