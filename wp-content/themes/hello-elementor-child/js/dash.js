@@ -120,6 +120,9 @@ function Dash(initialVnode) {
     function submitCallback(e) {
         //e.preventDefault();
         //e.redraw = false;
+        model.loaded = false;
+        model.error = "";
+
         model.repo = model.selectedRepo;
         model.metric = model.selectedMetric;
 
@@ -135,7 +138,6 @@ function Dash(initialVnode) {
     }
 
 	function initData(url) {
-        model.loaded = false;
 		let headers = {};
 		console.log("**** sending request ****")
 		return m.request({
@@ -155,7 +157,6 @@ function Dash(initialVnode) {
 	}
 
 	function updateData(url) {
-        model.loaded = false;
 		headers = {};
 		console.log("**** sending request 2 ****")
 		return m.request({
