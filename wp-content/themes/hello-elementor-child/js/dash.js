@@ -113,19 +113,29 @@ function Dash(initialVnode) {
     }
 
     function getMaxDate() {
-        d = new Date();
+        let d = new Date();
         //return d.toISOString().substring(0, 10);
-        y = d.getDate() - 1;
-        d.setDate(y);
+        //y = d.getDate() - 1;
+        //d.setDate(y);
         return d.toISOString().substring(0, 10);
     }
 
     function getDefaultStartDate() {
-        d = new Date();
-        y = d.getDate() - 14;
+        let d = new Date();
+        let y = d.getDate() - 14;
         d.setDate(y);
         return d.toISOString().substring(0, 10);
     }
+
+    function addDays(datestring, days) {
+        console.log(datestring);
+        let d = new Date(datestring);
+        let y = d.getDate() + days;
+        d.setDate(y);
+        console.log(d.toISOString());
+        return d.toISOString().substring(0, 10);
+    }
+
 
     /******************** Update Functions *********************/
     function updateRepo(e) {
@@ -153,9 +163,15 @@ function Dash(initialVnode) {
         model.owner = model.selectedOwner;
         model.repo = model.selectedRepo;
         model.metric = model.selectedMetric;
+        model.error = "";
+
+        if (model.startDate >= model.endDate) {
+            model.startDate = getDefaultStartDate();
+            model.endDate = getMaxDate();
+        }
+        
         let url = getUrl();
         updateData(url);
-
     }
 
 	function getRepos() {
@@ -335,16 +351,31 @@ function Dash(initialVnode) {
 
     function startDateCallback(e) {
 
-        // TODO do checks here
-        model.startDate = e.target.value;
-
+        if (e.target.value < model.minDate) {
+            model.startDate = model.minDate;
+        }
+        else if (e.target.value >= getMaxDate()) {
+            model.startDate = addDays(getMaxDate(), -1);
+        }
+        else {
+            model.startDate = e.target.value;
+        }
+        
         console.log(e.target.value);
     }
 
     function endDateCallback(e) {
-        // TODO do checks here
-        model.endDate = e.target.value;
-
+    
+        if (e.target.value > getMaxDate()) {
+            model.endDate = getMaxDate();
+        }
+        else if (e.target.value <= model.minDate) {
+            model.endDate = addDays(model.minDate, 1);
+        }
+        else {
+            model.endDate = e.target.value;
+        }
+        
         console.log(e.target.value);
     }
 
@@ -464,7 +495,7 @@ function Dash(initialVnode) {
         let frm = formView('dash-form', 'dash-form', [repoLabel, repoSelect, metricLabel, metricSelect, start, end, btn]);
 
 
-        let dv = null
+        let dv = null;
 
         if (model.error)
             dv = m("div", model.error);

@@ -35,7 +35,7 @@ function get_repo_list($response) {
 
     $data = [
         ['owner' => 'ufs-community', 'name' => 'ufs-weather-model', 'title' => 'Weather Model', 'minDate' => '2022-08-27'],
-        ['owner' => 'ufs-community', 'name' => 'ufs-srweather-app', 'title' => 'Short Range Weather App', 'minDate' => '2022-08-26'],
+        ['owner' => 'ufs-community', 'name' => 'ufs-srweather-app', 'title' => 'Short Range Weather App', 'minDate' => '2022-08-03'],
     
     ];
 
