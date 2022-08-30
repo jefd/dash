@@ -163,6 +163,7 @@ function Dash(initialVnode) {
         model.owner = model.selectedOwner;
         model.repo = model.selectedRepo;
         model.metric = model.selectedMetric;
+        model.loaded = false;
         model.error = "";
 
         if (model.startDate >= model.endDate) {
@@ -193,7 +194,6 @@ function Dash(initialVnode) {
 	}
 
     function initData() {
-        model.loaded = false;
         getRepos()
             .then(getData)
             .then(setData)
@@ -203,7 +203,6 @@ function Dash(initialVnode) {
     }
 
 	function updateData(url) {
-        model.loaded = false;
 		headers = {};
 		console.log("**** sending request 2 ****" + url)
 		return m.request({
