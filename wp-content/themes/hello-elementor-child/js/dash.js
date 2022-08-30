@@ -33,10 +33,12 @@ const CHART_OPTS = {
 
 };
 
+/*
 const REPOS = [
     {owner: 'ufs-community', name: 'ufs-weather-model', title: 'Weather Model', minDate: '2022-08-27'}, 
     {owner: 'ufs-community', name: 'ufs-srweather-app', title: 'Short Range Weather App', minDate: '2022-08-26'},
 ];
+*/
 
 const METRICS = [
     {name: 'views', title: 'Views'}, 
@@ -77,6 +79,10 @@ function Dash(initialVnode) {
         owner: INITIAL_OWNER,
         repo: INITIAL_REPO,
         metric: INITIAL_METRIC,
+        repos: null,
+        minDate: null,
+        startDate: getDefaultStartDate(),
+        endDate: getMaxDate(),
         data: null,
         chart: null,
 	    loaded: false,	
@@ -98,17 +104,25 @@ function Dash(initialVnode) {
     }
 
     function getMinDate(owner, repo) {
-        for (let idx in REPOS) {
-            let rep = REPOS[idx];
-            console.log(rep);
+        let repos = model.repos;
+        for (let idx in repos) {
+            let rep = repos[idx];
             if (rep['owner'] === owner && rep['name'] === repo)
                 return rep['minDate'];
         }
     }
 
-    function now() {
+    function getMaxDate() {
         d = new Date();
+        //return d.toISOString().substring(0, 10);
         y = d.getDate() - 1;
+        d.setDate(y);
+        return d.toISOString().substring(0, 10);
+    }
+
+    function getDefaultStartDate() {
+        d = new Date();
+        y = d.getDate() - 14;
         d.setDate(y);
         return d.toISOString().substring(0, 10);
     }
@@ -118,6 +132,7 @@ function Dash(initialVnode) {
         //e.redraw = false;
         model.selectedOwner = e.target.value.split('/')[0];
         model.selectedRepo = e.target.value.split('/')[1];
+        model.minDate = getMinDate(model.selectedOwner, model.selectedRepo);
     }
     
     function updateMetric(e) {
@@ -143,24 +158,33 @@ function Dash(initialVnode) {
 
     }
 
-	function initData(url) {
-        model.loaded = false;
-		let headers = {};
-		console.log("**** sending request ****" + url)
-		return m.request({
-			method: "GET",
-			url: url,
-			headers: headers,
-		})
-		.then(function(data){
-            model.data = data;
-            model.loaded = true;
-            console.log("**** RESPONSE ****", data);
-		})
-        .catch(function(e) {
-            model.error = "Error loading data";
-        })
+	function getRepos() {
+        let url = `${BASE_URL}${API_PATH}/repos/`;
+		return m.request(url);
 	}
+
+    function getData(repos) {
+        model.repos = repos;
+        model.minDate = getMinDate(model.owner, model.repo);
+        let url = getUrl();
+        return m.request(url);
+    }
+
+	function setData(data) {
+        model.data = data;
+        model.loaded = true;
+        console.log(model);
+	}
+
+    function initData() {
+        model.loaded = false;
+        getRepos()
+            .then(getData)
+            .then(setData)
+            .catch(function(e) {
+                model.error = "Error loading data";
+            });
+    }
 
 	function updateData(url) {
         model.loaded = false;
@@ -309,8 +333,23 @@ function Dash(initialVnode) {
         return m("button", {type: "button", onclick: callback}, label);
     }
 
-    function dateView(name, value, start, end) {
-        let attrs = {type: "date", id: name, name: name, value: value, min: start, max: end}
+    function startDateCallback(e) {
+
+        // TODO do checks here
+        model.startDate = e.target.value;
+
+        console.log(e.target.value);
+    }
+
+    function endDateCallback(e) {
+        // TODO do checks here
+        model.endDate = e.target.value;
+
+        console.log(e.target.value);
+    }
+
+    function dateView(name, value, start, end, cb) {
+        let attrs = {type: "date", id: name, name: name, value: value, min: start, max: end, onchange: cb}
         return m("input", attrs);
     }
 
@@ -393,50 +432,61 @@ function Dash(initialVnode) {
     }
 
     function view(vnode) {
-        let repoLabel = m("label", {for: 'repo-select'}, "Repository");
-        let repoSelect = selectView('repo-select', 'repo-select', REPOS, updateRepo);
+        try {
+            let repoLabel = m("label", {for: 'repo-select'}, "Repository");
+            let repoSelect = selectView('repo-select', 'repo-select', model.repos, updateRepo);
 
-        let metricLabel = m("label", {for: 'metric-select'}, "Metric");
-        let metricSelect = selectView('metric-select', 'metric-select', METRICS, updateMetric);
+            let metricLabel = m("label", {for: 'metric-select'}, "Metric");
+            let metricSelect = selectView('metric-select', 'metric-select', METRICS, updateMetric);
 
-        let btn = buttonView('Submit', submitCallback);
+            let btn = buttonView('Submit', submitCallback);
 
-        //let min = getMinDate(model.owner, model.repo);
+            //let min = getMinDate(model.owner, model.repo);
 
-        let n = now();
-        console.log('now: ' + n);
-        
-        let datev = null;
+            //console.log('now: ' + n);
+            
+            let datev = null;
 
-        if (model.selectedMetric === 'views' || model.selectedMetric === 'clones') {
-            let min = getMinDate(model.owner, model.selectedRepo);
-            datev = dateView('test', now(), min, now());
+            if (model.selectedMetric === 'views' || model.selectedMetric === 'clones') {
+                let min = getMinDate(model.selectedOwner, model.selectedRepo);
+                let max = getMaxDate();
+                start = dateView('start', model.startDate, model.minDate, max, startDateCallback);
+                end = dateView('end', model.endDate, model.minDate, max, endDateCallback);
+
+    //function dateView(name, value, start, end) {
+
+            }
+
+
+            let frm = formView('dash-form', 'dash-form', [repoLabel, repoSelect, metricLabel, metricSelect, start, end, btn]);
+
+
+            let dv = null
+
+            if (model.error)
+                dv = m("div", model.error);
+
+            else if (!model.loaded || !model.data)
+                //dv = m("div", "Loading...");
+                dv = m("div.loader");
+
+            else if (model.data.hasOwnProperty('message'))
+                dv = m("div", model.data.message);
+
+            else
+                dv = dataView(vnode);
+
+
+            return [
+                frm, 
+                dv
+            ];
         }
-
-
-        let frm = formView('dash-form', 'dash-form', [repoLabel, repoSelect, metricLabel, metricSelect, datev, btn]);
-
-
-        let dv = null
-
-        if (model.error)
-            dv = m("div", model.error);
-
-        else if (!model.loaded || !model.data)
-            //dv = m("div", "Loading...");
-            dv = m("div.loader");
-
-        else if (model.data.hasOwnProperty('message'))
-            dv = m("div", model.data.message);
-
-        else
-            dv = dataView(vnode);
-
-
-        return [
-            frm, 
-            dv
-        ];
+        catch {
+            return m("div.loader");
+        }
+        
+        
 
 
     }
@@ -445,9 +495,8 @@ function Dash(initialVnode) {
 	function init(vnode){
         // let url = "https://jsonplaceholder.typicode.com/todos/1";
         //let url = "https://rayv-webix4.jpl.nasa.gov/devel/ep/wp-json/dash/v1/ufs-weather-model/views/";
-        let url = getUrl();
 
-        return initData(url);
+        return initData();
 	}
 
     return {
