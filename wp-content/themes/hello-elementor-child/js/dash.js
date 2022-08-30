@@ -128,24 +128,26 @@ function Dash(initialVnode) {
     }
 
     function addDays(datestring, days) {
-        console.log(datestring);
         let d = new Date(datestring);
         let y = d.getDate() + days;
         d.setDate(y);
-        console.log(d.toISOString());
         return d.toISOString().substring(0, 10);
     }
 
 
     /******************** Update Functions *********************/
-    function updateRepo(e) {
+    function repoCallback(e) {
         //e.redraw = false;
         model.selectedOwner = e.target.value.split('/')[0];
         model.selectedRepo = e.target.value.split('/')[1];
         model.minDate = getMinDate(model.selectedOwner, model.selectedRepo);
+
+        if (model.startDate < model.minDate) {
+            model.startDate = model.minDate;
+        }
     }
     
-    function updateMetric(e) {
+    function metricCallback(e) {
         //e.redraw = false;
         model.selectedMetric = e.target.value;
     }
@@ -177,20 +179,23 @@ function Dash(initialVnode) {
 
 	function getRepos() {
         let url = `${BASE_URL}${API_PATH}/repos/`;
+		console.log("**** sending request ****" + url)
 		return m.request(url);
 	}
 
     function getData(repos) {
+        console.log("**** RESPONSE ****", repos);
         model.repos = repos;
         model.minDate = getMinDate(model.owner, model.repo);
         let url = getUrl();
+		console.log("**** sending request ****" + url)
         return m.request(url);
     }
 
 	function setData(data) {
+        console.log("**** RESPONSE ****", data);
         model.data = data;
         model.loaded = true;
-        console.log(model);
 	}
 
     function initData() {
@@ -204,7 +209,7 @@ function Dash(initialVnode) {
 
 	function updateData(url) {
 		headers = {};
-		console.log("**** sending request 2 ****" + url)
+		console.log("**** sending request ****" + url)
 		return m.request({
 			method: "GET",
 			url: url,
@@ -359,8 +364,6 @@ function Dash(initialVnode) {
         else {
             model.startDate = e.target.value;
         }
-        
-        console.log(e.target.value);
     }
 
     function endDateCallback(e) {
@@ -374,8 +377,6 @@ function Dash(initialVnode) {
         else {
             model.endDate = e.target.value;
         }
-        
-        console.log(e.target.value);
     }
 
     function dateView(name, value, start, end, cb) {
@@ -468,18 +469,16 @@ function Dash(initialVnode) {
         }
         
         let repoLabel = m("label", {for: 'repo-select'}, "Repository");
-        let repoSelect = selectView('repo-select', 'repo-select', model.repos, updateRepo);
+        let repoSelect = selectView('repo-select', 'repo-select', model.repos, repoCallback);
 
         let metricLabel = m("label", {for: 'metric-select'}, "Metric");
-        let metricSelect = selectView('metric-select', 'metric-select', METRICS, updateMetric);
+        let metricSelect = selectView('metric-select', 'metric-select', METRICS, metricCallback);
 
         let btn = buttonView('Submit', submitCallback);
 
-        //let min = getMinDate(model.owner, model.repo);
-
-        //console.log('now: ' + n);
-        
         let datev = null;
+
+        let start = end = null;
 
         if (model.selectedMetric === 'views' || model.selectedMetric === 'clones') {
             let min = getMinDate(model.selectedOwner, model.selectedRepo);
