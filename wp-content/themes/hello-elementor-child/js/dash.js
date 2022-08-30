@@ -432,61 +432,58 @@ function Dash(initialVnode) {
     }
 
     function view(vnode) {
-        try {
-            let repoLabel = m("label", {for: 'repo-select'}, "Repository");
-            let repoSelect = selectView('repo-select', 'repo-select', model.repos, updateRepo);
 
-            let metricLabel = m("label", {for: 'metric-select'}, "Metric");
-            let metricSelect = selectView('metric-select', 'metric-select', METRICS, updateMetric);
-
-            let btn = buttonView('Submit', submitCallback);
-
-            //let min = getMinDate(model.owner, model.repo);
-
-            //console.log('now: ' + n);
-            
-            let datev = null;
-
-            if (model.selectedMetric === 'views' || model.selectedMetric === 'clones') {
-                let min = getMinDate(model.selectedOwner, model.selectedRepo);
-                let max = getMaxDate();
-                start = dateView('start', model.startDate, model.minDate, max, startDateCallback);
-                end = dateView('end', model.endDate, model.minDate, max, endDateCallback);
-
-    //function dateView(name, value, start, end) {
-
-            }
-
-
-            let frm = formView('dash-form', 'dash-form', [repoLabel, repoSelect, metricLabel, metricSelect, start, end, btn]);
-
-
-            let dv = null
-
-            if (model.error)
-                dv = m("div", model.error);
-
-            else if (!model.loaded || !model.data)
-                //dv = m("div", "Loading...");
-                dv = m("div.loader");
-
-            else if (model.data.hasOwnProperty('message'))
-                dv = m("div", model.data.message);
-
-            else
-                dv = dataView(vnode);
-
-
-            return [
-                frm, 
-                dv
-            ];
-        }
-        catch {
-            return m("div.loader");
+        if (! model.repos) {
+            return m('div.loader');
         }
         
+        let repoLabel = m("label", {for: 'repo-select'}, "Repository");
+        let repoSelect = selectView('repo-select', 'repo-select', model.repos, updateRepo);
+
+        let metricLabel = m("label", {for: 'metric-select'}, "Metric");
+        let metricSelect = selectView('metric-select', 'metric-select', METRICS, updateMetric);
+
+        let btn = buttonView('Submit', submitCallback);
+
+        //let min = getMinDate(model.owner, model.repo);
+
+        //console.log('now: ' + n);
         
+        let datev = null;
+
+        if (model.selectedMetric === 'views' || model.selectedMetric === 'clones') {
+            let min = getMinDate(model.selectedOwner, model.selectedRepo);
+            let max = getMaxDate();
+            start = dateView('start', model.startDate, model.minDate, max, startDateCallback);
+            end = dateView('end', model.endDate, model.minDate, max, endDateCallback);
+
+            //function dateView(name, value, start, end) {
+        }
+
+
+        let frm = formView('dash-form', 'dash-form', [repoLabel, repoSelect, metricLabel, metricSelect, start, end, btn]);
+
+
+        let dv = null
+
+        if (model.error)
+            dv = m("div", model.error);
+
+        else if (!model.loaded || !model.data)
+            //dv = m("div", "Loading...");
+            dv = m("div.loader");
+
+        else if (model.data.hasOwnProperty('message'))
+            dv = m("div", model.data.message);
+
+        else
+            dv = dataView(vnode);
+
+
+        return [
+            frm, 
+            dv
+        ];
 
 
     }
