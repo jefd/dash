@@ -87,6 +87,7 @@ function Dash(initialVnode) {
         chart: null,
 	    loaded: false,	
         error: "",
+        showDatePicker: true,
     };
 
     function getUrl() {
@@ -379,8 +380,18 @@ function Dash(initialVnode) {
         }
     }
 
-    function dateView(name, value, start, end, cb) {
-        let attrs = {type: "date", id: name, name: name, value: value, min: start, max: end, onchange: cb}
+    function datePickerView(name, value, start, end, cb) {
+        let st = {visibility: model.showDatePicker ? "visible" : "hidden"};
+        //let st = {display: model.showDatePicker ? "inline" : "none"};
+        let attrs = {type: "date",
+            id: name, 
+            name: name, 
+            value: value, 
+            min: start, 
+            max: end, 
+            onchange: cb,
+            style: st,
+        }
         return m("input", attrs);
     }
 
@@ -476,21 +487,19 @@ function Dash(initialVnode) {
 
         let btn = buttonView('Submit', submitCallback);
 
-        let datev = null;
 
-        let start = end = null;
+        if (model.selectedMetric === 'views' || model.selectedMetric === 'clones')
+            model.showDatePicker = true;
+        else 
+            model.showDatePicker = false;
+        
 
-        if (model.selectedMetric === 'views' || model.selectedMetric === 'clones') {
-            let min = getMinDate(model.selectedOwner, model.selectedRepo);
-            let max = getMaxDate();
-            start = dateView('start', model.startDate, model.minDate, max, startDateCallback);
-            end = dateView('end', model.endDate, model.minDate, max, endDateCallback);
+        let min = getMinDate(model.selectedOwner, model.selectedRepo);
+        let max = getMaxDate();
+        let startDp = datePickerView('start', model.startDate, model.minDate, max, startDateCallback);
+        let endDp = datePickerView('end', model.endDate, model.minDate, max, endDateCallback);
 
-            //function dateView(name, value, start, end) {
-        }
-
-
-        let frm = formView('dash-form', 'dash-form', [repoLabel, repoSelect, metricLabel, metricSelect, start, end, btn]);
+        let frm = formView('dash-form', 'dash-form', [repoLabel, repoSelect, metricLabel, metricSelect, startDp, endDp, btn]);
 
 
         let dv = null;
