@@ -31,11 +31,13 @@ add_action('rest_api_init', function () {
     ));
 });
 
+
+/*
 function get_repo_list($response) {
 
     $data = [
-        ['owner' => 'ufs-community', 'name' => 'ufs-weather-model', 'title' => 'Weather Model', 'minDate' => '2022-08-27'],
-        ['owner' => 'ufs-community', 'name' => 'ufs-srweather-app', 'title' => 'Short Range Weather App', 'minDate' => '2022-08-03'],
+        ['owner' => 'ufs-community', 'name' => 'ufs-weather-model', 'title' => 'Weather Model', 'minDate' => '2022-05-21'],
+        ['owner' => 'ufs-community', 'name' => 'ufs-srweather-app', 'title' => 'Short Range Weather App', 'minDate' => '2022-06-22'],
     
     ];
 
@@ -45,6 +47,43 @@ function get_repo_list($response) {
     return $response;
     
 }
+*/
+
+function get_repo_list($response) {
+    $DB_PATH = dirname(__FILE__) . '/metrics.db';
+
+    try {
+        $db = new PDO("sqlite:$DB_PATH");
+
+        $res = $db -> query('select * from repos;');
+
+
+        $lst = [];
+        foreach ($res as $row) {
+
+            $o = Array();
+
+            $o['owner'] = $row['owner'];
+            $o['name'] = $row['name'];
+            $o['title'] = $row['title'];
+            $o['minDate'] = substr($row['minDate'], 0, 10);
+
+            $lst[] = $o;
+
+        }
+
+        $response = new WP_REST_Response($lst);
+        $response->set_status(200);
+
+        return $response;
+
+    }
+    catch(PDOException $e) {
+        return new WP_Error( 'error', $e->getMessage(), array('status' => 404) );
+    }
+    
+}
+
 
 
 /************************************* Constants *******************************************/
@@ -404,11 +443,13 @@ function get_metric_data($request) {
     $end = $request->get_param('end');
 
     // testing querystring parameters
+    /*
     if (! is_null($start) ) {
         $response = new WP_REST_Response(['start' => $start]);
         $response->set_status(200);
         return $response;
     }
+     */
 
     $owner = $request['owner'];
     $repo = $request['repo'];
