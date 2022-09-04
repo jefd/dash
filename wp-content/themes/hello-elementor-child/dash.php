@@ -57,7 +57,6 @@ function get_repo_list($response) {
 
         $res = $db -> query('select * from repos;');
 
-
         $lst = [];
         foreach ($res as $row) {
 
@@ -159,6 +158,72 @@ function get_view_chart_data($url, $args) {
     
     return $chart_data;
 }
+
+function get_view_chart_data_db($table_name) {
+    function get_data($body){
+        $dates = Array();
+        $views = Array();
+
+        foreach($body->views as $view) {
+            $dates[] = substr($view->timestamp, 0, 10);
+            $views[] = $view->count;
+        }
+        return Array('dates' => $dates, 'views' => $views, 'count' => $body->count, 'uniques' => $body->uniques);
+    }
+
+    function format_data($views){
+
+        $m = Array();
+        $m['labels'] = $views['dates'];
+
+        $m['datasets'] = Array();
+        $m['datasets'][] = mk_dataset('Views', '#01a64a', $views['views']);
+        $m['count'] = $views['count'];
+        $m['uniques'] = $views['uniques'];
+
+        return $m;
+    }
+
+    //$response = wp_remote_get($url, $args);
+
+    /*************************************************/
+    $DB_PATH = dirname(__FILE__) . '/metrics.db';
+
+    try {
+        $db = new PDO("sqlite:$DB_PATH");
+        $res = $db -> query("select * from \"$table_name\";");
+
+
+        $lst = [];
+        $count = 0;
+        $uniques = 0;
+        foreach ($res as $row) {
+
+            $o = Array();
+
+            $o['timestamp'] = $row['timestamp'];
+            $o['count'] = $row['count'];
+            $o['uniques'] = $row['uniques'];
+
+            $count += $o['count'];
+            $uniques += $o['uniques'];
+
+            $lst[] = $o;
+
+        }
+        $body = json_decode(json_encode(["count" => $count, "uniques" => $uniques, "views" => $lst]));
+        $data = get_data($body);
+        $chart_data = format_data($data);
+    
+    }
+    catch(PDOException $e) {
+        $chart_data = ["message" => $e->getMessage()];
+    }
+
+    
+    return $chart_data;
+}
+    /*************************************************/
 
 function get_clone_chart_data($url, $args) {
     function get_data($body){
@@ -414,6 +479,10 @@ function get_url($owner, $repo, $metric) {
 
 }
 
+function get_table_name($owner, $repo, $metric) {
+    return "{$owner}/{$repo}/{$metric}";
+}
+
 function get_args($owner, $repo) {
     function get_token($owner, $repo) {
         global $REPOS;
@@ -458,9 +527,11 @@ function get_metric_data($request) {
     $args = get_args($owner, $repo);
 
     $url = get_url($owner, $repo, $metric);
+    $table_name = get_table_name($owner, $repo, $metric);
 
     if ($metric == "views") {
-        $data = get_view_chart_data($url, $args);
+        //$data = get_view_chart_data($url, $args);
+        $data = get_view_chart_data_db($table_name); 
     }
     else if ($metric == "clones") {
         $data = get_clone_chart_data($url, $args);
