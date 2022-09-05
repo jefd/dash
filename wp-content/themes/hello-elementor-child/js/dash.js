@@ -171,12 +171,6 @@ function Dash(initialVnode) {
 
 
         // Date sanity checks
-        if (! model.startDate)
-            model.startDate = getDefaultStartDate();
-
-        if (! model.endDate)
-            model.endDate = getMaxDate();
-
         if (model.startDate < model.minDate)
             model.startDate = model.minDate;
 
@@ -370,10 +364,14 @@ function Dash(initialVnode) {
 
     function startDateCallback(e) {
         model.startDate = e.target.value;
+        if (! model.startDate )
+            model.startDate = getDefaultStartDate();
     }
 
     function endDateCallback(e) {
         model.endDate = e.target.value;
+        if (! model.endDate )
+            model.endDate = getMaxDate();
     }
 
     function datePickerView(name, value, start, end, cb) {
