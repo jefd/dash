@@ -106,8 +106,7 @@ function Dash(initialVnode) {
 
     function getMinDate(owner, repo) {
         let repos = model.repos;
-        for (let idx in repos) {
-            let rep = repos[idx];
+        for (const rep of repos) {
             if (rep['owner'] === owner && rep['name'] === repo)
                 return rep['minDate'];
         }
