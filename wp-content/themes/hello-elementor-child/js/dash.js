@@ -91,7 +91,7 @@ function Dash(initialVnode) {
     };
 
     function getUrl() {
-        return `${BASE_URL}${API_PATH}/${model.owner}/${model.repo}/${model.metric}`;
+        return `${BASE_URL}${API_PATH}/${model.owner}/${model.repo}/${model.metric}/?start=${model.startDate}&end=${model.endDate}`;
     }
 
     function getName(lst, name) {
