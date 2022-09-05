@@ -159,7 +159,7 @@ function get_view_chart_data($url, $args) {
     return $chart_data;
 }
 
-function get_view_chart_data_db($table_name) {
+function get_view_chart_data_db($table_name, $start, $end) {
     function get_data($body){
         $dates = Array();
         $views = Array();
@@ -190,8 +190,12 @@ function get_view_chart_data_db($table_name) {
     $DB_PATH = dirname(__FILE__) . '/metrics.db';
 
     try {
+
         $db = new PDO("sqlite:$DB_PATH");
-        $res = $db -> query("select * from \"$table_name\";");
+        //$res = $db -> query("select * from \"$table_name\";");
+        //$res = $db -> query("select * from \"$table_name\" where timestamp>=\"2022-08-23\" and timestamp<=\"2022-08-27\";");
+        $start .= 'T00:00:00Z'; $end .= 'T00:00:00Z';
+        $res = $db -> query("select * from \"$table_name\" where timestamp>=\"$start\" and timestamp<=\"$end\";");
 
 
         $lst = [];
@@ -531,7 +535,7 @@ function get_metric_data($request) {
 
     if ($metric == "views") {
         //$data = get_view_chart_data($url, $args);
-        $data = get_view_chart_data_db($table_name); 
+        $data = get_view_chart_data_db($table_name, $start, $end); 
     }
     else if ($metric == "clones") {
         $data = get_clone_chart_data($url, $args);
