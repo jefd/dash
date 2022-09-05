@@ -169,6 +169,20 @@ function Dash(initialVnode) {
         model.loaded = false;
         model.error = "";
 
+
+        // Date sanity checks
+        if (! model.startDate)
+            model.startDate = getDefaultStartDate();
+
+        if (! model.endDate)
+            model.endDate = getMaxDate();
+
+        if (model.startDate < model.minDate)
+            model.startDate = model.minDate;
+
+        if (model.endDate > getMaxDate())
+            model.endDate = getMaxDate()
+
         if (model.startDate >= model.endDate) {
             model.startDate = getDefaultStartDate();
             model.endDate = getMaxDate();
@@ -355,29 +369,11 @@ function Dash(initialVnode) {
     }
 
     function startDateCallback(e) {
-
-        if (e.target.value < model.minDate) {
-            model.startDate = model.minDate;
-        }
-        else if (e.target.value >= getMaxDate()) {
-            model.startDate = addDays(getMaxDate(), -1);
-        }
-        else {
-            model.startDate = e.target.value;
-        }
+        model.startDate = e.target.value;
     }
 
     function endDateCallback(e) {
-    
-        if (e.target.value > getMaxDate()) {
-            model.endDate = getMaxDate();
-        }
-        else if (e.target.value <= model.minDate) {
-            model.endDate = addDays(model.minDate, 1);
-        }
-        else {
-            model.endDate = e.target.value;
-        }
+        model.endDate = e.target.value;
     }
 
     function datePickerView(name, value, start, end, cb) {
