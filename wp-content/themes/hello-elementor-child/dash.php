@@ -2,7 +2,7 @@
 
 require 'token.php';
 
-$VERSION = 'v1.0.8';
+$VERSION = 'v1.0.9';
 
 
 add_shortcode( 'dashboard', 'metrics_dash_board');
