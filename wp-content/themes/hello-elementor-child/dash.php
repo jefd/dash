@@ -64,7 +64,7 @@ function get_repo_list($response) {
 
             $o['owner'] = $row['owner'];
             $o['name'] = $row['name'];
-            $o['title'] = $row['title'];
+            $o['metric'] = $row['metric'];
             $o['minDate'] = substr($row['minDate'], 0, 10);
 
             $lst[] = $o;
