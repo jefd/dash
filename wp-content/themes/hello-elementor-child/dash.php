@@ -132,15 +132,15 @@ function get_view_chart_data($url, $args) {
         return Array('dates' => $dates, 'views' => $views, 'count' => $body->count, 'uniques' => $body->uniques);
     }
 
-    function format_data($views){
+    function format_data($data){
 
         $m = Array();
-        $m['labels'] = $views['dates'];
+        $m['labels'] = $data['dates'];
 
         $m['datasets'] = Array();
-        $m['datasets'][] = mk_dataset('Views', '#01a64a', $views['views']);
-        $m['count'] = $views['count'];
-        $m['uniques'] = $views['uniques'];
+        $m['datasets'][] = mk_dataset('Views', '#01a64a', $data['views']);
+        $m['count'] = $data['count'];
+        $m['uniques'] = $data['uniques'];
 
         return $m;
     }
@@ -171,15 +171,15 @@ function get_view_chart_data_db($table_name, $start, $end) {
         return Array('dates' => $dates, 'views' => $views, 'count' => $body->count, 'uniques' => $body->uniques);
     }
 
-    function format_data($views){
+    function format_data($data){
 
         $m = Array();
-        $m['labels'] = $views['dates'];
+        $m['labels'] = $data['dates'];
 
         $m['datasets'] = Array();
-        $m['datasets'][] = mk_dataset('Views', '#01a64a', $views['views']);
-        $m['count'] = $views['count'];
-        $m['uniques'] = $views['uniques'];
+        $m['datasets'][] = mk_dataset('Views', '#01a64a', $data['views']);
+        $m['count'] = $data['count'];
+        $m['uniques'] = $data['uniques'];
 
         return $m;
     }
@@ -241,15 +241,15 @@ function get_clone_chart_data($url, $args) {
         return Array('dates' => $dates, 'clones' => $clones, 'count' => $body->count, 'uniques' => $body->uniques);
     }
 
-    function format_data($clones){
+    function format_data($data){
 
         $m = Array();
-        $m['labels'] = $clones['dates'];
+        $m['labels'] = $data['dates'];
 
         $m['datasets'] = Array();
-        $m['datasets'][] = mk_dataset('Clones', '#01a64a', $clones['clones']);
-        $m['count'] = $clones['count'];
-        $m['uniques'] = $clones['uniques'];
+        $m['datasets'][] = mk_dataset('Clones', '#01a64a', $data['clones']);
+        $m['count'] = $data['count'];
+        $m['uniques'] = $data['uniques'];
 
         return $m;
          
@@ -270,7 +270,8 @@ function get_clone_chart_data($url, $args) {
        
 }
 
-function get_freq_chart_data($url, $args) {
+function get_freq_chart_data($url, $args, $start, $end) {
+
     function get_data($body){
         $dates = Array();
         $additions = Array();
@@ -281,17 +282,58 @@ function get_freq_chart_data($url, $args) {
             $additions[] = $lst[1];
             $deletions[] = $lst[2];
         }
+         
         return Array('dates' => $dates, 'additions' => $additions, 'deletions' => $deletions);
     }
 
-    function format_data($freq){
+    function get_indices($dates, $start, $end) {
+        $start_index = -1;
+        $end_index = -1;
+        foreach ($dates as $ind => $date) {
+            if ($date >= $start && $start_index == -1)
+                $start_index = $ind;
+            
+            if ($date >= $end && $end_index == -1)
+                $end_index = $ind;
+            
+        }
+		if ($start_index == -1)
+        	$start_index = 0;
+
+    	if ($end_index == -1)
+        	$end_index = count($dates) - 1;
+
+        return [$start_index, $end_index];
+    }
+
+    function filter_data($data, $start, $end) {
+        $dates = $data['dates'];
+        $additions = $data['additions'];
+        $deletions = $data['deletions'];
+
+        $ind = get_indices($dates, $start, $end);
+        $start_index = $ind[0];
+        $end_index = $ind[1];
+        
+        if ($start_index != -1 && $end_index != -1) {
+            $len = $end_index - $start_index + 1;
+            $dates = array_slice($dates, $start_index, $len);
+            $additions = array_slice($additions, $start_index,  $len);
+            $deletions = array_slice($deletions, $start_index, $len);
+
+        }
+        return Array('dates' => $dates, 'additions' => $additions, 'deletions' => $deletions);
+    }
+
+
+    function format_data($data){
 
         $m = Array();
-        $m['labels'] = $freq['dates'];
+        $m['labels'] = $data['dates'];
 
         $m['datasets'] = Array();
-        $m['datasets'][] = mk_dataset('Additions', '#d87203', $freq['additions']);
-        $m['datasets'][] = mk_dataset('Deletions', '#01a64a', $freq['deletions']);
+        $m['datasets'][] = mk_dataset('Additions', '#d87203', $data['additions']);
+        $m['datasets'][] = mk_dataset('Deletions', '#01a64a', $data['deletions']);
 
         return $m;
     }
@@ -301,6 +343,7 @@ function get_freq_chart_data($url, $args) {
     if($response['response']['code'] == 200) {
         $body = json_decode(wp_remote_retrieve_body( $response ));
         $data = get_data($body);
+        $data = filter_data($data, $start, $end);
         $chart_data = format_data($data);
     }
     else{
@@ -541,7 +584,7 @@ function get_metric_data($request) {
         $data = get_clone_chart_data($url, $args);
     }
     else if ($metric == "frequency") {
-        $data = get_freq_chart_data($url, $args);
+        $data = get_freq_chart_data($url, $args, $start, $end);
     }
     else if ($metric == "commits") {
         $data = get_commit_chart_data($url, $args);
@@ -559,7 +602,6 @@ function get_metric_data($request) {
 
     $response = new WP_REST_Response($data);
     $response->set_status(200);
-
     return $response;
 }
 
