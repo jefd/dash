@@ -587,6 +587,9 @@ function get_metric_data($request) {
         $data = get_freq_chart_data($url, $args, $start, $end);
     }
     else if ($metric == "commits") {
+        //$url .= "&since=2022-08-01T00:00:00Z&until=2022-09-06T00:00:00Z";
+        //$url .= "&since=2021-08-01T00:00:00Z&until=2022-08-01T00:00:00Z";
+        $url .= "&since={$start}T00:00:00Z&until={$end}T00:00:00Z";
         $data = get_commit_chart_data($url, $args);
     }
     else if ($metric == "releases") {
