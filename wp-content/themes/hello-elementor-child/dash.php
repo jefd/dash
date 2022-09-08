@@ -31,6 +31,14 @@ add_action('rest_api_init', function () {
     ));
 });
 
+add_action('rest_api_init', function () {
+    register_rest_route( 'dash/v1', '/dl',array(
+        'methods'  => 'GET',
+        //'callback' => 'send_csv'
+        'callback' => 'my_rest_get_image'
+    ));
+});
+
 
 /*
 function get_repo_list($response) {
@@ -677,3 +685,101 @@ function get_metric_data($request) {
     return $response;
 }
 
+function send_csv($request) {
+
+    $DB_PATH = dirname(__FILE__) . '/metrics.db';
+    $IMG_PATH = dirname(__FILE__) . '/test.jpg';
+
+    $start = $request->get_param('start');
+    $end = $request->get_param('end');
+
+    // testing querystring parameters
+    /*
+    if (! is_null($start) ) {
+        $response = new WP_REST_Response(['start' => $start]);
+        $response->set_status(200);
+        return $response;
+    }
+     */
+
+	$data = ['start' => $start, 'end' => $end];
+
+
+    $response = new WP_REST_Response($data);
+    $response->set_status(200);
+    return $response;
+}
+
+function my_serve_image( $path, $type = 'png' ) {
+    $response = new WP_REST_Response;
+
+    if ( file_exists( $path ) ) {
+        // Image exists, prepare a binary-data response.
+        $response->set_data( file_get_contents( $path ) );
+        $response->set_headers( [
+            'Content-Type'   => "image/$type",
+            'Content-Length' => filesize( $path ),
+        ] );
+
+        // HERE → This filter will return our binary image!
+        add_filter( 'rest_pre_serve_request', 'my_do_serve_image', 0, 2 );
+    } else {
+        // Return a simple "not-found" JSON response.
+        $response->set_data( 'not-found' );
+        $response->set_status( 404 );
+    }
+
+    return $response;
+}
+function my_do_serve_image( $served, $result ) {
+    $is_image   = false;
+    $image_data = null;
+
+    // Check the "Content-Type" header to confirm that we really want to return
+    // binary image data.
+    foreach ( $result->get_headers() as $header => $value ) {
+        if ( 'content-type' === strtolower( $header ) ) {
+            $is_image   = 0 === strpos( $value, 'image/' );
+            $image_data = $result->get_data();
+            break;
+        }
+    }
+
+    // Output the binary data and tell the REST server to not send any other
+    // details (via "return true").
+    if ( $is_image && is_string( $image_data ) ) {
+        echo $image_data;
+
+        return true;
+    }
+
+    return $served;
+}
+function my_rest_get_image() {
+    $IMG_PATH = dirname(__FILE__) . '/test.jpg';
+    return my_serve_image( $IMG_PATH, 'jpg' );
+}
+
+
+
+
+/************************************* download button ***************************************/
+/*
+add_action( 'init',  function() {
+    //add_rewrite_rule( 'myparamname/([a-z0-9-]+)[/]?$', 'index.php?myparamname=$matches[1]', 'top' );
+    add_rewrite_rule(
+        'properties/([0-9]+)/?$',
+        'index.php?pagename=properties&property_id=$matches[1]',
+        'top' );
+});
+
+add_filter( 'query_vars', function( $query_vars ) {
+    //$query_vars[] = 'myparamname';
+    $query_vars[] = 'property_id';
+    return $query_vars;
+});
+*/
+
+
+
+/************************************* download button ***************************************/
