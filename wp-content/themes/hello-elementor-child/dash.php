@@ -197,7 +197,6 @@ function get_view_chart_data_db($table_name, $start, $end) {
         $start .= 'T00:00:00Z'; $end .= 'T00:00:00Z';
         $res = $db -> query("select * from \"$table_name\" where timestamp>=\"$start\" and timestamp<=\"$end\";");
 
-
         $lst = [];
         $count = 0;
         $uniques = 0;
@@ -268,6 +267,75 @@ function get_clone_chart_data($url, $args) {
     
     return $chart_data;
        
+}
+
+function get_clone_chart_data_db($table_name, $start, $end) {
+    function get_data($body){
+        $dates = Array();
+        $clones = Array();
+
+        foreach($body->clones as $clone) {
+            $dates[] = substr($clone->timestamp, 0, 10);
+            $clones[] = $clone->count;
+        }
+        return Array('dates' => $dates, 'clones' => $clones, 'count' => $body->count, 'uniques' => $body->uniques);
+    }
+
+    function format_data($data){
+
+        $m = Array();
+        $m['labels'] = $data['dates'];
+
+        $m['datasets'] = Array();
+        $m['datasets'][] = mk_dataset('Clones', '#01a64a', $data['clones']);
+        $m['count'] = $data['count'];
+        $m['uniques'] = $data['uniques'];
+
+        return $m;
+         
+    }
+
+    //$response = wp_remote_get($url, $args);
+
+    /*************************************************/
+    $DB_PATH = dirname(__FILE__) . '/metrics.db';
+
+    try {
+
+        $db = new PDO("sqlite:$DB_PATH");
+        //$res = $db -> query("select * from \"$table_name\";");
+        //$res = $db -> query("select * from \"$table_name\" where timestamp>=\"2022-08-23\" and timestamp<=\"2022-08-27\";");
+        $start .= 'T00:00:00Z'; $end .= 'T00:00:00Z';
+        $res = $db -> query("select * from \"$table_name\" where timestamp>=\"$start\" and timestamp<=\"$end\";");
+
+        $lst = [];
+        $count = 0;
+        $uniques = 0;
+        foreach ($res as $row) {
+
+            $o = Array();
+
+            $o['timestamp'] = $row['timestamp'];
+            $o['count'] = $row['count'];
+            $o['uniques'] = $row['uniques'];
+
+            $count += $o['count'];
+            $uniques += $o['uniques'];
+
+            $lst[] = $o;
+
+        }
+        $body = json_decode(json_encode(["count" => $count, "uniques" => $uniques, "clones" => $lst]));
+        $data = get_data($body);
+        $chart_data = format_data($data);
+    
+    }
+    catch(PDOException $e) {
+        $chart_data = ["message" => $e->getMessage()];
+    }
+
+    
+    return $chart_data;
 }
 
 function get_freq_chart_data($url, $args, $start, $end) {
@@ -581,7 +649,8 @@ function get_metric_data($request) {
         $data = get_view_chart_data_db($table_name, $start, $end); 
     }
     else if ($metric == "clones") {
-        $data = get_clone_chart_data($url, $args);
+        //$data = get_clone_chart_data($url, $args);
+        $data = get_clone_chart_data_db($table_name, $start, $end); 
     }
     else if ($metric == "frequency") {
         $data = get_freq_chart_data($url, $args, $start, $end);
