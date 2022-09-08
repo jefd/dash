@@ -35,8 +35,10 @@ const CHART_OPTS = {
 
 /*
 const REPOS = [
-    {owner: 'ufs-community', name: 'ufs-weather-model', title: 'Weather Model', minDate: '2022-08-27'}, 
-    {owner: 'ufs-community', name: 'ufs-srweather-app', title: 'Short Range Weather App', minDate: '2022-08-26'},
+    {owner: 'ufs-community', name: 'ufs-weather-model', metric: 'views', minDate: '2022-08-27'}, 
+    {owner: 'ufs-community', name: 'ufs-weather-model', metric: 'clones', minDate: '2022-08-26'},
+    {owner: 'ufs-community', name: 'ufs-srweather-app', metric: 'views', minDate: '2022-08-26'},
+    {owner: 'ufs-community', name: 'ufs-srweather-app', metric: 'clones', minDate: '2022-08-27'}, 
 ];
 */
 
@@ -47,6 +49,11 @@ const METRICS = [
     {name: 'commits', title: 'Commits'}, 
     {name: 'contributors', title: 'Top Contributors'}, 
     {name: 'releases', title: 'Releases'}, 
+];
+
+const REPO_TITLES = [
+    {owner: 'ufs-community', name: 'ufs-weather-model', title: 'Weather Model'}, 
+    {owner: 'ufs-community', name: 'ufs-srweather-app', title: 'Short Range Weather App'}, 
 ];
 
 
@@ -104,10 +111,10 @@ function Dash(initialVnode) {
         return m[name];
     }
 
-    function getMinDate(owner, repo) {
+    function getMinDate(owner, repo, metric) {
         let repos = model.repos;
         for (const rep of repos) {
-            if (rep['owner'] === owner && rep['name'] === repo)
+            if (rep['owner'] === owner && rep['name'] === repo && rep['metric'] === metric)
                 return rep['minDate'];
         }
     }
@@ -140,7 +147,7 @@ function Dash(initialVnode) {
         //e.redraw = false;
         model.selectedOwner = e.target.value.split('/')[0];
         model.selectedRepo = e.target.value.split('/')[1];
-        model.minDate = getMinDate(model.selectedOwner, model.selectedRepo);
+        model.minDate = getMinDate(model.selectedOwner, model.selectedRepo, model.selectedMetric);
 
         if (model.startDate < model.minDate) {
             model.startDate = model.minDate;
@@ -150,6 +157,10 @@ function Dash(initialVnode) {
     function metricCallback(e) {
         //e.redraw = false;
         model.selectedMetric = e.target.value;
+        model.minDate = getMinDate(model.selectedOwner, model.selectedRepo, model.selectedMetric);
+        if (model.startDate < model.minDate) {
+            model.startDate = model.minDate;
+        }
     }
 
     function submitCallback(e) {
@@ -194,7 +205,7 @@ function Dash(initialVnode) {
     function getData(repos) {
         console.log("**** RESPONSE **** ", repos);
         model.repos = repos;
-        model.minDate = getMinDate(model.owner, model.repo);
+        model.minDate = getMinDate(model.owner, model.repo, model.metric);
         let url = getUrl();
 		console.log("**** sending request **** " + url)
         return m.request(url);
@@ -240,9 +251,10 @@ function Dash(initialVnode) {
     /***********************************************************/
 
     /************************** View Functions ***********************/
-    function selectView(id, name,  options, callback) {
+    function selectView(id, name,  repo_titles, callback) {
 
-        let opts = options.map(function(option) {
+
+        let opts = repo_titles.map(function(option) {
 
             if (option.hasOwnProperty('owner')) {
                 return m("option", {value: `${option.owner}/${option.name}`}, option.title);
@@ -473,7 +485,7 @@ function Dash(initialVnode) {
         }
         
         let repoLabel = m("label", {for: 'repo-select'}, "Repository");
-        let repoSelect = selectView('repo-select', 'repo-select', model.repos, repoCallback);
+        let repoSelect = selectView('repo-select', 'repo-select', REPO_TITLES, repoCallback);
 
         let metricLabel = m("label", {for: 'metric-select'}, "Metric");
         let metricSelect = selectView('metric-select', 'metric-select', METRICS, metricCallback);
@@ -481,13 +493,14 @@ function Dash(initialVnode) {
         let btn = buttonView('Submit', submitCallback);
 
 
+        /*
         if (model.selectedMetric === 'views' || model.selectedMetric === 'clones')
             model.showDatePicker = true;
         else 
             model.showDatePicker = false;
+        */
         
 
-        let min = getMinDate(model.selectedOwner, model.selectedRepo);
         let max = getMaxDate();
         let startDp = datePickerView('start', model.startDate, model.minDate, max, startDateCallback);
         let endDp = datePickerView('end', model.endDate, model.minDate, max, endDateCallback);
