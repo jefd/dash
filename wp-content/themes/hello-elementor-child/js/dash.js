@@ -147,19 +147,36 @@ function Dash(initialVnode) {
         //e.redraw = false;
         model.selectedOwner = e.target.value.split('/')[0];
         model.selectedRepo = e.target.value.split('/')[1];
-        model.minDate = getMinDate(model.selectedOwner, model.selectedRepo, model.selectedMetric);
 
-        if (model.startDate < model.minDate) {
-            model.startDate = model.minDate;
+        let minDate = getMinDate(model.selectedOwner, model.selectedRepo, model.selectedMetric);
+        if (minDate) {
+            model.minDate = minDate;
+
+            if (model.startDate < model.minDate) {
+                model.startDate = model.minDate;
+            }
         }
     }
     
     function metricCallback(e) {
         //e.redraw = false;
         model.selectedMetric = e.target.value;
-        model.minDate = getMinDate(model.selectedOwner, model.selectedRepo, model.selectedMetric);
-        if (model.startDate < model.minDate) {
-            model.startDate = model.minDate;
+
+        let minDate = getMinDate(model.selectedOwner, model.selectedRepo, model.selectedMetric);
+        
+        if (minDate) {
+            model.minDate = minDate;
+
+            if (model.selectedMetric === "views" || model.selectedMetric === "clones") {
+                model.startDate = getDefaultStartDate();
+            }
+            else if (model.selectedMetric === "commits" || model.selectedMetric === "frequency") {
+                model.startDate = model.minDate;
+            }
+
+            if (model.startDate < model.minDate) {
+                model.startDate = model.minDate;
+            }
         }
     }
 
@@ -375,8 +392,12 @@ function Dash(initialVnode) {
 
     function startDateCallback(e) {
         model.startDate = e.target.value;
-        if (! model.startDate )
-            model.startDate = getDefaultStartDate();
+        if (! model.startDate ){
+            if (model.selectedMetric == "views" ||  model.selectedMetric == "clones") 
+                model.startDate = getDefaultStartDate();
+            else if (model.selectedMetric == "frequency" ||  model.selectedMetric == "commits")
+                model.startDate = getMinDate(model.selectedOwner, model.selectedRepo, model.selectedMetric) 
+        }
     }
 
     function endDateCallback(e) {
@@ -493,12 +514,10 @@ function Dash(initialVnode) {
         let btn = buttonView('Submit', submitCallback);
 
 
-        /*
-        if (model.selectedMetric === 'views' || model.selectedMetric === 'clones')
-            model.showDatePicker = true;
-        else 
+        if (model.selectedMetric === 'contributors' || model.selectedMetric === 'releases')
             model.showDatePicker = false;
-        */
+        else 
+            model.showDatePicker = true;
         
 
         let max = getMaxDate();
