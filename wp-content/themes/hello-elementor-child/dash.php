@@ -35,7 +35,7 @@ add_action('rest_api_init', function () {
     register_rest_route( 'dash/v1', '/dl',array(
         'methods'  => 'GET',
         //'callback' => 'send_csv'
-        'callback' => 'my_rest_get_image'
+        'callback' => 'my_rest_get_csv'
     ));
 });
 
@@ -710,19 +710,25 @@ function send_csv($request) {
     return $response;
 }
 
-function my_serve_image( $path, $type = 'png' ) {
+function my_serve_csv() {
     $response = new WP_REST_Response;
 
-    if ( file_exists( $path ) ) {
-        // Image exists, prepare a binary-data response.
-        $response->set_data( file_get_contents( $path ) );
+    $f = fopen('php://memory', 'r+');
+    $success = fputcsv($f, ['hello', 'world']);
+    rewind($f);
+
+
+    if ( $success ) {
+        // csv data exists, prepare response.
+        $response->set_data( stream_get_contents( $f ) );
         $response->set_headers( [
-            'Content-Type'   => "image/$type",
-            'Content-Length' => filesize( $path ),
+            'Content-Type'   => "application/csv",
+            //'Content-Length' => filesize( $f ),
+            'Content-disposition' => 'filename=download.csv',
         ] );
 
-        // HERE → This filter will return our binary image!
-        add_filter( 'rest_pre_serve_request', 'my_do_serve_image', 0, 2 );
+        // HERE → This filter will return our csv file!
+        add_filter( 'rest_pre_serve_request', 'my_do_serve_csv', 0, 2 );
     } else {
         // Return a simple "not-found" JSON response.
         $response->set_data( 'not-found' );
@@ -731,33 +737,32 @@ function my_serve_image( $path, $type = 'png' ) {
 
     return $response;
 }
-function my_do_serve_image( $served, $result ) {
-    $is_image   = false;
-    $image_data = null;
+function my_do_serve_csv( $served, $result ) {
+    $is_csv   = false;
+    $csv_data = null;
 
     // Check the "Content-Type" header to confirm that we really want to return
-    // binary image data.
+    // a csv file.
     foreach ( $result->get_headers() as $header => $value ) {
         if ( 'content-type' === strtolower( $header ) ) {
-            $is_image   = 0 === strpos( $value, 'image/' );
-            $image_data = $result->get_data();
+            $is_csv   = 0 === strpos( $value, 'application/csv' );
+            $csv_data = $result->get_data();
             break;
         }
     }
 
     // Output the binary data and tell the REST server to not send any other
     // details (via "return true").
-    if ( $is_image && is_string( $image_data ) ) {
-        echo $image_data;
+    if ( $is_csv && is_string( $csv_data ) ) {
+        echo $csv_data;
 
         return true;
     }
 
     return $served;
 }
-function my_rest_get_image() {
-    $IMG_PATH = dirname(__FILE__) . '/test.jpg';
-    return my_serve_image( $IMG_PATH, 'jpg' );
+function my_rest_get_csv() {
+    return my_serve_csv();
 }
 
 
