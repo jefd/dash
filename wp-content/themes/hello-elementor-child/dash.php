@@ -31,14 +31,6 @@ add_action('rest_api_init', function () {
     ));
 });
 
-add_action('rest_api_init', function () {
-    register_rest_route( 'dash/v1', '/dl',array(
-        'methods'  => 'GET',
-        //'callback' => 'send_csv'
-        'callback' => 'my_rest_get_csv'
-    ));
-});
-
 
 /*
 function get_repo_list($response) {
@@ -161,7 +153,7 @@ function get_view_chart_data($url, $args) {
         $chart_data = format_data($data);
     }
     else{
-        $chart_data = ["message" => "Error loading Github metrics data"];
+        $chart_data = ["message" => "Error loading Github metrics data " . $response['response']['code']];
     }
     
     return $chart_data;
@@ -631,21 +623,14 @@ function get_args($owner, $repo) {
 
 function get_metric_data($request) {
 
-    $start = $request->get_param('start');
-    $end = $request->get_param('end');
-
-    // testing querystring parameters
-    /*
-    if (! is_null($start) ) {
-        $response = new WP_REST_Response(['start' => $start]);
-        $response->set_status(200);
-        return $response;
-    }
-     */
-
     $owner = $request['owner'];
     $repo = $request['repo'];
     $metric = $request['metric'];
+
+    $start = $request->get_param('start');
+    $end = $request->get_param('end');
+    
+    $dl = $request->get_param('dl');
 
     $args = get_args($owner, $repo);
 
@@ -680,111 +665,64 @@ function get_metric_data($request) {
         return new WP_Error( 'No Data', 'No Data', array('status' => 404) );
     }
 
-    $response = new WP_REST_Response($data);
-    $response->set_status(200);
-    return $response;
-}
-
-function send_csv($request) {
-
-    $DB_PATH = dirname(__FILE__) . '/metrics.db';
-    $IMG_PATH = dirname(__FILE__) . '/test.jpg';
-
-    $start = $request->get_param('start');
-    $end = $request->get_param('end');
-
-    // testing querystring parameters
-    /*
-    if (! is_null($start) ) {
-        $response = new WP_REST_Response(['start' => $start]);
-        $response->set_status(200);
-        return $response;
-    }
-     */
-
-	$data = ['start' => $start, 'end' => $end];
-
+    if($dl == '1')
+        return serve_csv($data);
 
     $response = new WP_REST_Response($data);
     $response->set_status(200);
     return $response;
 }
 
-function my_serve_csv() {
+function serve_csv($data) {
     $response = new WP_REST_Response;
 
     $f = fopen('php://memory', 'r+');
     $success = fputcsv($f, ['hello', 'world']);
+    $success = fputcsv($f, ['Goodbye', 'world']);
     rewind($f);
 
-
-    if ( $success ) {
+    if ($success) {
         // csv data exists, prepare response.
-        $response->set_data( stream_get_contents( $f ) );
-        $response->set_headers( [
-            'Content-Type'   => "application/csv",
-            //'Content-Length' => filesize( $f ),
-            'Content-disposition' => 'filename=download.csv',
-        ] );
+        $csv_string = stream_get_contents($f);
 
-        // HERE → This filter will return our csv file!
-        add_filter( 'rest_pre_serve_request', 'my_do_serve_csv', 0, 2 );
+        $response->set_data($csv_string);
+        $response->set_headers([
+            'Content-Type'   => "application/csv",
+            'Content-Length' => strlen($csv_string),
+            'Content-disposition' => 'filename=download.csv',
+        ]);
+
+        // Add filter here. This filter will return our csv file!
+        add_filter('rest_pre_serve_request', 'csv_callback', 0, 2);
     } else {
         // Return a simple "not-found" JSON response.
-        $response->set_data( 'not-found' );
-        $response->set_status( 404 );
+        $response->set_data('not-found');
+        $response->set_status(404);
     }
 
     return $response;
 }
-function my_do_serve_csv( $served, $result ) {
+
+function csv_callback($served, $result) {
     $is_csv   = false;
     $csv_data = null;
 
     // Check the "Content-Type" header to confirm that we really want to return
     // a csv file.
-    foreach ( $result->get_headers() as $header => $value ) {
-        if ( 'content-type' === strtolower( $header ) ) {
+    foreach ($result->get_headers() as $header => $value) {
+        if ('content-type' === strtolower($header)) {
             $is_csv   = 0 === strpos( $value, 'application/csv' );
             $csv_data = $result->get_data();
             break;
         }
     }
 
-    // Output the binary data and tell the REST server to not send any other
+    // Output the csv file and tell the REST server to not send any other
     // details (via "return true").
-    if ( $is_csv && is_string( $csv_data ) ) {
+    if ($is_csv && is_string($csv_data)) {
         echo $csv_data;
-
         return true;
     }
-
     return $served;
 }
-function my_rest_get_csv() {
-    return my_serve_csv();
-}
 
-
-
-
-/************************************* download button ***************************************/
-/*
-add_action( 'init',  function() {
-    //add_rewrite_rule( 'myparamname/([a-z0-9-]+)[/]?$', 'index.php?myparamname=$matches[1]', 'top' );
-    add_rewrite_rule(
-        'properties/([0-9]+)/?$',
-        'index.php?pagename=properties&property_id=$matches[1]',
-        'top' );
-});
-
-add_filter( 'query_vars', function( $query_vars ) {
-    //$query_vars[] = 'myparamname';
-    $query_vars[] = 'property_id';
-    return $query_vars;
-});
-*/
-
-
-
-/************************************* download button ***************************************/
