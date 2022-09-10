@@ -112,7 +112,7 @@ function mk_dataset($label, $color, $data){
         'label' => $label,
         'borderColor' => $color, 
         'backgroundColor' => $color,
-        'fill' => true,
+        'fill' => false,
         'tension' => 0.4,
         'borderWidth' => 3,
         'data' => $data
@@ -124,12 +124,14 @@ function get_view_chart_data($url, $args) {
     function get_data($body){
         $dates = Array();
         $views = Array();
+        $unique_views = Array();
 
         foreach($body->views as $view) {
             $dates[] = substr($view->timestamp, 0, 10);
             $views[] = $view->count;
+            $unique_views[] = $view->uniques;
         }
-        return Array('dates' => $dates, 'views' => $views, 'count' => $body->count, 'uniques' => $body->uniques);
+        return Array('dates' => $dates, 'views' => $views, 'unique_views' => $unique_views, 'count' => $body->count, 'uniques' => $body->uniques);
     }
 
     function format_data($data){
@@ -139,6 +141,7 @@ function get_view_chart_data($url, $args) {
 
         $m['datasets'] = Array();
         $m['datasets'][] = mk_dataset('Views', '#01a64a', $data['views']);
+        $m['datasets'][] = mk_dataset('Unique Views', '#d87203', $data['unique_views']);
         $m['count'] = $data['count'];
         $m['uniques'] = $data['uniques'];
 
@@ -163,12 +166,14 @@ function get_view_chart_data_db($table_name, $start, $end) {
     function get_data($body){
         $dates = Array();
         $views = Array();
+        $unique_views = Array();
 
         foreach($body->views as $view) {
             $dates[] = substr($view->timestamp, 0, 10);
             $views[] = $view->count;
+            $unique_views[] = $view->uniques;
         }
-        return Array('dates' => $dates, 'views' => $views, 'count' => $body->count, 'uniques' => $body->uniques);
+        return Array('dates' => $dates, 'views' => $views, 'unique_views' => $unique_views, 'count' => $body->count, 'uniques' => $body->uniques);
     }
 
     function format_data($data){
@@ -178,6 +183,7 @@ function get_view_chart_data_db($table_name, $start, $end) {
 
         $m['datasets'] = Array();
         $m['datasets'][] = mk_dataset('Views', '#01a64a', $data['views']);
+        $m['datasets'][] = mk_dataset('Unique Views', '#d87203', $data['unique_views']);
         $m['count'] = $data['count'];
         $m['uniques'] = $data['uniques'];
 
@@ -232,12 +238,14 @@ function get_clone_chart_data($url, $args) {
     function get_data($body){
         $dates = Array();
         $clones = Array();
+        $unique_clones = Array();
 
         foreach($body->clones as $clone) {
             $dates[] = substr($clone->timestamp, 0, 10);
             $clones[] = $clone->count;
+            $unique_clones[] = $clone->uniques;
         }
-        return Array('dates' => $dates, 'clones' => $clones, 'count' => $body->count, 'uniques' => $body->uniques);
+        return Array('dates' => $dates, 'clones' => $clones, 'unique_clones' => $unique_clones, 'count' => $body->count, 'uniques' => $body->uniques);
     }
 
     function format_data($data){
@@ -247,6 +255,7 @@ function get_clone_chart_data($url, $args) {
 
         $m['datasets'] = Array();
         $m['datasets'][] = mk_dataset('Clones', '#01a64a', $data['clones']);
+        $m['datasets'][] = mk_dataset('Unique Clones', '#d87203', $data['unique_clones']);
         $m['count'] = $data['count'];
         $m['uniques'] = $data['uniques'];
 
@@ -273,12 +282,14 @@ function get_clone_chart_data_db($table_name, $start, $end) {
     function get_data($body){
         $dates = Array();
         $clones = Array();
+        $unique_clones = Array();
 
         foreach($body->clones as $clone) {
             $dates[] = substr($clone->timestamp, 0, 10);
             $clones[] = $clone->count;
+            $unique_clones[] = $clone->uniques;
         }
-        return Array('dates' => $dates, 'clones' => $clones, 'count' => $body->count, 'uniques' => $body->uniques);
+        return Array('dates' => $dates, 'clones' => $clones, 'unique_clones' => $unique_clones, 'count' => $body->count, 'uniques' => $body->uniques);
     }
 
     function format_data($data){
@@ -288,6 +299,7 @@ function get_clone_chart_data_db($table_name, $start, $end) {
 
         $m['datasets'] = Array();
         $m['datasets'][] = mk_dataset('Clones', '#01a64a', $data['clones']);
+        $m['datasets'][] = mk_dataset('Unique Clones', '#d87203', $data['unique_clones']);
         $m['count'] = $data['count'];
         $m['uniques'] = $data['uniques'];
 
@@ -671,6 +683,11 @@ function get_metric_data($request) {
     $response = new WP_REST_Response($data);
     $response->set_status(200);
     return $response;
+}
+
+function mk_csv($data) {
+    // let's do views first
+    //$headers = ['', ];
 }
 
 function serve_csv($data) {
