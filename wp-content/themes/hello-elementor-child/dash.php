@@ -55,7 +55,7 @@ function get_repo_list($response) {
     try {
         $db = new PDO("sqlite:$DB_PATH");
 
-        $res = $db -> query('select * from repos;');
+        $res = $db -> query('select * from repos order by owner, name;');
 
         $lst = [];
         foreach ($res as $row) {
@@ -201,7 +201,7 @@ function get_view_chart_data_db($table_name, $start, $end) {
         //$res = $db -> query("select * from \"$table_name\";");
         //$res = $db -> query("select * from \"$table_name\" where timestamp>=\"2022-08-23\" and timestamp<=\"2022-08-27\";");
         $start .= 'T00:00:00Z'; $end .= 'T00:00:00Z';
-        $res = $db -> query("select * from \"$table_name\" where timestamp>=\"$start\" and timestamp<=\"$end\";");
+        $res = $db -> query("select * from \"$table_name\" where timestamp>=\"$start\" and timestamp<=\"$end\" order by timestamp;");
 
         $lst = [];
         $count = 0;
@@ -318,7 +318,7 @@ function get_clone_chart_data_db($table_name, $start, $end) {
         //$res = $db -> query("select * from \"$table_name\";");
         //$res = $db -> query("select * from \"$table_name\" where timestamp>=\"2022-08-23\" and timestamp<=\"2022-08-27\";");
         $start .= 'T00:00:00Z'; $end .= 'T00:00:00Z';
-        $res = $db -> query("select * from \"$table_name\" where timestamp>=\"$start\" and timestamp<=\"$end\";");
+        $res = $db -> query("select * from \"$table_name\" where timestamp>=\"$start\" and timestamp<=\"$end\" order by timestamp;");
 
         $lst = [];
         $count = 0;
