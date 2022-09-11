@@ -112,11 +112,11 @@ function Dash(initialVnode) {
     }
 
     function getMinDate(owner, repo, metric) {
-        let repos = model.repos;
-        for (const rep of repos) {
+        for (const rep of model.repos) {
             if (rep['owner'] === owner && rep['name'] === repo && rep['metric'] === metric)
                 return rep['minDate'];
         }
+        return getDefaultStartDate();
     }
 
     function getMaxDate() {
