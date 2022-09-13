@@ -112,7 +112,7 @@ function mk_dataset($label, $color, $data, $order=0){
         'label' => $label,
         'borderColor' => $color, 
         'backgroundColor' => $color,
-        'fill' => true,
+        'fill' => false,
         'order' => $order,
         'tension' => 0.4,
         'borderWidth' => 3,
@@ -419,17 +419,25 @@ function get_freq_chart_data($url, $args, $start, $end) {
         return $m;
     }
 
-    $response = wp_remote_get($url, $args);
 
-    if($response['response']['code'] == 200) {
-        $body = json_decode(wp_remote_retrieve_body( $response ));
-        $data = get_data($body);
-        $data = filter_data($data, $start, $end);
-        $chart_data = format_data($data);
+    $tries = 0;
+
+    while ($tries < 10){
+        $tries += 1;
+        $response = wp_remote_get($url, $args);
+        $status_code = $response['response']['code'];
+        if($status_code == 200) {
+            $body = json_decode(wp_remote_retrieve_body( $response ));
+            $data = get_data($body);
+            $data = filter_data($data, $start, $end);
+            $chart_data = format_data($data);
+            return $chart_data;
+        }
+        sleep(1);
     }
-    else{
-        $chart_data = ["message" => "Error loading Github metrics data"];
-    }
+
+    $chart_data = ["message" => "Error loading Github metrics data"];
+    
     
     return $chart_data;
        
