@@ -106,13 +106,14 @@ $NUMBER_TOP_CONTRIBUTORS = 3;
 
 
 
-function mk_dataset($label, $color, $data){
+function mk_dataset($label, $color, $data, $order=0){
     $lst = [
         'type' => 'line',
         'label' => $label,
         'borderColor' => $color, 
         'backgroundColor' => $color,
-        'fill' => false,
+        'fill' => true,
+        'order' => $order,
         'tension' => 0.4,
         'borderWidth' => 3,
         'data' => $data
@@ -140,7 +141,7 @@ function get_view_chart_data($url, $args) {
         $m['labels'] = $data['dates'];
 
         $m['datasets'] = Array();
-        $m['datasets'][] = mk_dataset('Views', '#01a64a', $data['views']);
+        $m['datasets'][] = mk_dataset('Views', '#01a64a', $data['views'], 1);
         $m['datasets'][] = mk_dataset('Unique Views', '#d87203', $data['unique_views']);
         $m['count'] = $data['count'];
         $m['uniques'] = $data['uniques'];
@@ -182,7 +183,7 @@ function get_view_chart_data_db($table_name, $start, $end) {
         $m['labels'] = $data['dates'];
 
         $m['datasets'] = Array();
-        $m['datasets'][] = mk_dataset('Views', '#01a64a', $data['views']);
+        $m['datasets'][] = mk_dataset('Views', '#01a64a', $data['views'], 1);
         $m['datasets'][] = mk_dataset('Unique Views', '#d87203', $data['unique_views']);
         $m['count'] = $data['count'];
         $m['uniques'] = $data['uniques'];
@@ -254,7 +255,7 @@ function get_clone_chart_data($url, $args) {
         $m['labels'] = $data['dates'];
 
         $m['datasets'] = Array();
-        $m['datasets'][] = mk_dataset('Clones', '#01a64a', $data['clones']);
+        $m['datasets'][] = mk_dataset('Clones', '#01a64a', $data['clones'], 1);
         $m['datasets'][] = mk_dataset('Unique Clones', '#d87203', $data['unique_clones']);
         $m['count'] = $data['count'];
         $m['uniques'] = $data['uniques'];
@@ -298,7 +299,7 @@ function get_clone_chart_data_db($table_name, $start, $end) {
         $m['labels'] = $data['dates'];
 
         $m['datasets'] = Array();
-        $m['datasets'][] = mk_dataset('Clones', '#01a64a', $data['clones']);
+        $m['datasets'][] = mk_dataset('Clones', '#01a64a', $data['clones'], 1);
         $m['datasets'][] = mk_dataset('Unique Clones', '#d87203', $data['unique_clones']);
         $m['count'] = $data['count'];
         $m['uniques'] = $data['uniques'];
