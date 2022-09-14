@@ -694,59 +694,31 @@ function get_metric_data($request) {
     return $response;
 }
 
-function mk_csv_views($data) {
+
+function mk_csv($data, $metric) {
+    $header_map = [
+        'views' => ['timestamp', 'count', 'uniques'],
+        'clones' => ['timestamp', 'count', 'uniques'],
+        'frequency' => ['timestamp', 'additions', 'deletions'],
+        'commits' => ['timestamp', 'commits'],
+    ];
+
     try {
-        $headers = ['timestamp', 'count', 'uniques'];
+        $headers = $header_map[$metric];
         $timestamps = $data['labels'];
-        $counts = $data['datasets'][0]['data'];
-        $uniques = $data['datasets'][1]['data'];
+        
+        $col1 = $data['datasets'][0]['data'];
+        $col2 = null;
+        if (count($headers) == 3)
+            $col2 = $data['datasets'][1]['data'];
 
         $f = fopen('php://memory', 'r+');
         fputcsv($f, $headers);
         foreach($timestamps as $idx => $val) {
-            fputcsv($f, [$timestamps[$idx], $counts[$idx], $uniques[$idx]]);
-        }
-        rewind($f);
-        $csv_string = stream_get_contents($f);
-        return $csv_string;
-    }
-    catch(Exception $e) {
-        return false;
-    }
-
-}
-
-function mk_csv_freq($data) {
-    try {
-        $headers = ['timestamp', 'additions', 'deletions'];
-        $timestamps = $data['labels'];
-        $additions = $data['datasets'][0]['data'];
-        $deletions = $data['datasets'][1]['data'];
-
-        $f = fopen('php://memory', 'r+');
-        fputcsv($f, $headers);
-        foreach($timestamps as $idx => $val) {
-            fputcsv($f, [$timestamps[$idx], $additions[$idx], $deletions[$idx]]);
-        }
-        rewind($f);
-        $csv_string = stream_get_contents($f);
-        return $csv_string;
-    }
-    catch(Exception $e) {
-        return false;
-    }
-}
-
-function mk_csv_commits($data) {
-    try {
-        $headers = ['timestamp', 'commits'];
-        $timestamps = $data['labels'];
-        $commits = $data['datasets'][0]['data'];
-
-        $f = fopen('php://memory', 'r+');
-        fputcsv($f, $headers);
-        foreach($timestamps as $idx => $val) {
-            fputcsv($f, [$timestamps[$idx], $commits[$idx]]);
+            if (! $col2)
+                fputcsv($f, [$timestamps[$idx], $col1[$idx]]);
+            else
+                fputcsv($f, [$timestamps[$idx], $col1[$idx], $col2[$idx]]);
         }
         rewind($f);
         $csv_string = stream_get_contents($f);
@@ -766,22 +738,10 @@ function serve_csv($data, $request) {
     $repo = $request['repo'];
     $metric = $request['metric'];
 
+    $filename = "{$owner}_{$repo}_{$metric}.csv";
 
-    $funs = ['views' => 'mk_csv_views', 
-        'clones' => 'mk_csv_views',
-        'frequency' => 'mk_csv_freq',
-        'commits' => 'mk_csv_commits',
-    ];
+    $csv_string = mk_csv($data, $metric);
 
-    //$csv_string = mk_csv_views($data);
-    $csv_string = $funs[$metric]($data);
-
-    //$f = fopen('php://memory', 'r+');
-    //$success = fputcsv($f, ['hello', 'world']);
-    //$success = fputcsv($f, ['Goodbye', 'world']);
-    //rewind($f);
-
-    //if ($success) {
     if ($csv_string) {
         // csv data exists, prepare response.
         //$csv_string = stream_get_contents($f);
@@ -790,7 +750,7 @@ function serve_csv($data, $request) {
         $response->set_headers([
             'Content-Type'   => "application/csv",
             'Content-Length' => strlen($csv_string),
-            'Content-disposition' => 'filename=download.csv',
+            'Content-disposition' => "filename={$filename}",
         ]);
 
         // Add filter here. This filter will return our csv file!
