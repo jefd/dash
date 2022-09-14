@@ -687,29 +687,104 @@ function get_metric_data($request) {
     }
 
     if($dl == '1')
-        return serve_csv($data);
+        return serve_csv($data, $request);
 
     $response = new WP_REST_Response($data);
     $response->set_status(200);
     return $response;
 }
 
-function mk_csv($data) {
-    // let's do views first
-    //$headers = ['', ];
+function mk_csv_views($data) {
+    try {
+        $headers = ['timestamp', 'count', 'uniques'];
+        $timestamps = $data['labels'];
+        $counts = $data['datasets'][0]['data'];
+        $uniques = $data['datasets'][1]['data'];
+
+        $f = fopen('php://memory', 'r+');
+        fputcsv($f, $headers);
+        foreach($timestamps as $idx => $val) {
+            fputcsv($f, [$timestamps[$idx], $counts[$idx], $uniques[$idx]]);
+        }
+        rewind($f);
+        $csv_string = stream_get_contents($f);
+        return $csv_string;
+    }
+    catch(Exception $e) {
+        return false;
+    }
+
 }
 
-function serve_csv($data) {
+function mk_csv_freq($data) {
+    try {
+        $headers = ['timestamp', 'additions', 'deletions'];
+        $timestamps = $data['labels'];
+        $additions = $data['datasets'][0]['data'];
+        $deletions = $data['datasets'][1]['data'];
+
+        $f = fopen('php://memory', 'r+');
+        fputcsv($f, $headers);
+        foreach($timestamps as $idx => $val) {
+            fputcsv($f, [$timestamps[$idx], $additions[$idx], $deletions[$idx]]);
+        }
+        rewind($f);
+        $csv_string = stream_get_contents($f);
+        return $csv_string;
+    }
+    catch(Exception $e) {
+        return false;
+    }
+}
+
+function mk_csv_commits($data) {
+    try {
+        $headers = ['timestamp', 'commits'];
+        $timestamps = $data['labels'];
+        $commits = $data['datasets'][0]['data'];
+
+        $f = fopen('php://memory', 'r+');
+        fputcsv($f, $headers);
+        foreach($timestamps as $idx => $val) {
+            fputcsv($f, [$timestamps[$idx], $commits[$idx]]);
+        }
+        rewind($f);
+        $csv_string = stream_get_contents($f);
+        return $csv_string;
+    }
+    catch(Exception $e) {
+        return false;
+    }
+
+}
+
+
+function serve_csv($data, $request) {
     $response = new WP_REST_Response;
 
-    $f = fopen('php://memory', 'r+');
-    $success = fputcsv($f, ['hello', 'world']);
-    $success = fputcsv($f, ['Goodbye', 'world']);
-    rewind($f);
+    $owner = $request['owner'];
+    $repo = $request['repo'];
+    $metric = $request['metric'];
 
-    if ($success) {
+
+    $funs = ['views' => 'mk_csv_views', 
+        'clones' => 'mk_csv_views',
+        'frequency' => 'mk_csv_freq',
+        'commits' => 'mk_csv_commits',
+    ];
+
+    //$csv_string = mk_csv_views($data);
+    $csv_string = $funs[$metric]($data);
+
+    //$f = fopen('php://memory', 'r+');
+    //$success = fputcsv($f, ['hello', 'world']);
+    //$success = fputcsv($f, ['Goodbye', 'world']);
+    //rewind($f);
+
+    //if ($success) {
+    if ($csv_string) {
         // csv data exists, prepare response.
-        $csv_string = stream_get_contents($f);
+        //$csv_string = stream_get_contents($f);
 
         $response->set_data($csv_string);
         $response->set_headers([
