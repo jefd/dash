@@ -95,6 +95,7 @@ function Dash(initialVnode) {
 	    loaded: false,	
         error: "",
         showDatePicker: true,
+        showDLink: true,
     };
 
     function getUrl() {
@@ -145,6 +146,8 @@ function Dash(initialVnode) {
     /******************** Update Functions *********************/
     function repoCallback(e) {
         //e.redraw = false;
+        model.showDLink = false;
+
         model.selectedOwner = e.target.value.split('/')[0];
         model.selectedRepo = e.target.value.split('/')[1];
 
@@ -160,6 +163,8 @@ function Dash(initialVnode) {
     
     function metricCallback(e) {
         //e.redraw = false;
+        model.showDLink = false;
+        
         model.selectedMetric = e.target.value;
 
         let minDate = getMinDate(model.selectedOwner, model.selectedRepo, model.selectedMetric);
@@ -195,6 +200,12 @@ function Dash(initialVnode) {
         model.metric = model.selectedMetric;
         model.loaded = false;
         model.error = "";
+
+        if (model.metric === 'contributors' || model.metric === 'releases')
+            model.showDLink = false;
+        else
+            model.showDLink = true;
+
 
 
         // Date sanity checks
@@ -513,19 +524,24 @@ function Dash(initialVnode) {
 
         let btn = buttonView('Submit', submitCallback);
 
+        /********************* download link ************************************/
+        //let dLinkStyle = {display: model.showDLink ? "inline" : "none"};
+        let dLinkStyle = {visibility: model.showDLink ? "visible" : "hidden"};
+        let url = getUrl() + '&dl=1';
+        let dLink = m("a", {href: url, style: dLinkStyle}, "Download Data");
+        /************************************************************************/
 
         if (model.selectedMetric === 'contributors' || model.selectedMetric === 'releases')
             model.showDatePicker = false;
-        else 
+        else { 
             model.showDatePicker = true;
+        }
         
-
         let max = getMaxDate();
         let startDp = datePickerView('start', model.startDate, model.minDate, max, startDateCallback);
         let endDp = datePickerView('end', model.endDate, model.minDate, max, endDateCallback);
 
         let frm = formView('dash-form', 'dash-form', [repoLabel, repoSelect, metricLabel, metricSelect, startDp, endDp, btn]);
-
 
         let dv = null;
 
@@ -545,6 +561,7 @@ function Dash(initialVnode) {
 
         return [
             frm, 
+            dLink,
             dv
         ];
 
