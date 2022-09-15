@@ -303,7 +303,7 @@ function Dash(initialVnode) {
 
     function metricDataView(vnode) {
         let d = model.data;
-        if (model.metric === "views" || model.metric === "clones") {
+        if (model.metric === "views") {
             let name = getName(METRICS, model.metric);
             let c = d['count'];
             let u = d['uniques'];
@@ -320,6 +320,37 @@ function Dash(initialVnode) {
                     [
                         m("div.stat-label2", `Unique ${name}`),
                         m("div.stat-value2", `${u}`)
+
+                    ]),
+                
+                ]
+
+            );
+        }
+        if (model.metric === "clones") {
+            let name = getName(METRICS, model.metric);
+            let c = d['count'];
+            let u = d['uniques'];
+            let f = d['fork_count'];
+
+            return m("div.stats-container2", 
+                [
+                    m("div.stat-wrapper2", 
+                    [
+                        m("div.stat-label2", `Total ${name}`),
+                        m("div.stat-value2", `${c}`)
+
+                    ]),
+                    m("div.stat-wrapper2", 
+                    [
+                        m("div.stat-label2", `Unique ${name}`),
+                        m("div.stat-value2", `${u}`)
+
+                    ]),
+                    m("div.stat-wrapper2", 
+                    [
+                        m("div.stat-label2", 'Forks'),
+                        m("div.stat-value2", `${f}`)
 
                     ]),
                 

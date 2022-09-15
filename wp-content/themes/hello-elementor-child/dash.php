@@ -97,6 +97,7 @@ $METRICS = ["views" => "/traffic/views",
             "clones" => "/traffic/clones",
             "frequency" => "/stats/code_frequency",
             "commits" => "/commits?per_page=100",
+            "forks" => "/forks?per_page=100",
             "releases" => "/releases",
             "contributors" => "/contributors",
 ];
@@ -443,48 +444,81 @@ function get_freq_chart_data($url, $args, $start, $end) {
        
 }
 
-function get_commit_chart_data($url, $args) {
-    
-	function split_strip($s, $ch) {
-        $lst = explode($ch, $s);
-        return array_map("trim", $lst);
+function split_strip($s, $ch) {
+    $lst = explode($ch, $s);
+    return array_map("trim", $lst);
+}
+
+function fetch_links($headers) {
+    $rel_lst = ['first', 'last', 'next', 'prev'];
+    $m = Array();
+
+    try {
+        $link = $headers['Link'];
+    } 
+    catch (Exception $e) {
+        return $m;
     }
     
-    
-    function fetch_links($headers) {
-        $rel_lst = ['first', 'last', 'next', 'prev'];
-        $m = Array();
+    if (!isset($link) || $link == '') {
+        return $m;
+    }
 
-        try {
-            $link = $headers['Link'];
-        } 
-        catch (Exception $e) {
-            return $m;
+    $f = function($item) {
+        return split_strip($item, ';');
+    };
+
+    foreach($rel_lst as $rel) {
+        $l = split_strip($link, ',');
+        $l2 = array_map($f, $l);
+
+        foreach($l2 as $a) {
+            if(strpos($a[1], $rel)) {
+                $m[$rel] = substr($a[0], 1, strlen($a[0]) - 2);
+            }
         }
-        
-        if (!isset($link) || $link == '') {
-            return $m;
-        }
 
-        $f = function($item) {
-            return split_strip($item, ';');
-        };
+    }
 
-        foreach($rel_lst as $rel) {
-            $l = split_strip($link, ',');
-            $l2 = array_map($f, $l);
+    return $m;
+}
 
-            foreach($l2 as $a) {
-                if(strpos($a[1], $rel)) {
-                    $m[$rel] = substr($a[0], 1, strlen($a[0]) - 2);
-                }
+function get_fork_count($url, $args) {
+    $total = 0;
+    while (isset($url) && $url !== '') {
+        $response = wp_remote_get($url, $args);
+        if($response['response']['code'] == 200) {
+            $body = json_decode(wp_remote_retrieve_body($response));
+
+            foreach($body as $l) {
+                $date = substr($l->commit->author->date, 0, 10);
+                $count = $l->forks_count;
+                if ($count == 0)
+                    $total += 1;
+                else
+                    $total += ($count + 1);
+
+            }
+
+            $headers = wp_remote_retrieve_headers($response);
+            $links = fetch_links($headers);
+
+            if (array_key_exists('next', $links)) {
+                $url = $links['next'];
+            }
+            else {
+                $url = '';
             }
 
         }
 
-        return $m;
     }
+    return $total;
 
+}
+
+function get_commit_chart_data($url, $args) {
+    
     function get_commit_map($url, $args) {
         $commit_map = Array();
 
@@ -665,6 +699,12 @@ function get_metric_data($request) {
     else if ($metric == "clones") {
         //$data = get_clone_chart_data($url, $args);
         $data = get_clone_chart_data_db($table_name, $start, $end); 
+
+        // Special case: we need to add the number of forks 
+        // here so we can include it below the clones graph.
+        $fork_url = get_url($owner, $repo, "forks");
+        $fork_count = get_fork_count($fork_url, $args);
+        $data['fork_count'] = $fork_count;
     }
     else if ($metric == "frequency") {
         $data = get_freq_chart_data($url, $args, $start, $end);
@@ -750,6 +790,7 @@ function serve_csv($data, $request) {
         $response->set_headers([
             'Content-Type'   => "application/csv",
             'Content-Length' => strlen($csv_string),
+            'Content-disposition' => "test.csv",
             'Content-disposition' => "filename={$filename}",
         ]);
 
