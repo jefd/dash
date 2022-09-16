@@ -5,6 +5,9 @@ require 'token.php';
 $VERSION = 'v1.0.6';
 
 
+$DB_PATH = dirname(__FILE__) . '/metrics.db';
+
+
 add_shortcode( 'dashboard', 'metrics_dash_board');
 function metrics_dash_board($atts) {
     global $VERSION;
@@ -50,7 +53,7 @@ function get_repo_list($response) {
 */
 
 function get_repo_list($response) {
-    $DB_PATH = dirname(__FILE__) . '/metrics.db';
+    global $DB_PATH;
 
     try {
         $db = new PDO("sqlite:$DB_PATH");
@@ -165,6 +168,8 @@ function get_view_chart_data($url, $args) {
 }
 
 function get_view_chart_data_db($table_name, $start, $end) {
+    global $DB_PATH;
+
     function get_data($body){
         $dates = Array();
         $views = Array();
@@ -195,7 +200,6 @@ function get_view_chart_data_db($table_name, $start, $end) {
     //$response = wp_remote_get($url, $args);
 
     /*************************************************/
-    $DB_PATH = dirname(__FILE__) . '/metrics.db';
 
     try {
 
@@ -281,6 +285,8 @@ function get_clone_chart_data($url, $args) {
 }
 
 function get_clone_chart_data_db($table_name, $start, $end) {
+    global $DB_PATH;
+
     function get_data($body){
         $dates = Array();
         $clones = Array();
@@ -312,7 +318,6 @@ function get_clone_chart_data_db($table_name, $start, $end) {
     //$response = wp_remote_get($url, $args);
 
     /*************************************************/
-    $DB_PATH = dirname(__FILE__) . '/metrics.db';
 
     try {
 
@@ -517,6 +522,16 @@ function get_fork_count($url, $args) {
 
 }
 
+function get_fork_count_db($table_name) {
+    global $DB_PATH;
+    $db = new PDO("sqlite:$DB_PATH");
+    $res = $db -> query("select fork_count from \"$table_name\" limit 1;");
+    foreach ($res as $row) {
+        return $row['fork_count'];
+    }
+     
+}
+
 function get_commit_chart_data($url, $args) {
     
     function get_commit_map($url, $args) {
@@ -702,8 +717,14 @@ function get_metric_data($request) {
 
         // Special case: we need to add the number of forks 
         // here so we can include it below the clones graph.
-        $fork_url = get_url($owner, $repo, "forks");
-        $fork_count = get_fork_count($fork_url, $args);
+        
+        // Get data from api
+        //$fork_url = get_url($owner, $repo, "forks");
+        //$fork_count = get_fork_count($fork_url, $args);
+        
+        // Get data from local database
+        $fork_table_name = get_table_name($owner, $repo, "forks");
+        $fork_count = get_fork_count_db($fork_table_name);
         $data['fork_count'] = $fork_count;
     }
     else if ($metric == "frequency") {
