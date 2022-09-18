@@ -567,12 +567,57 @@ function get_fork_count($url, $args) {
 
 function get_fork_count_db($table_name) {
     global $DB_PATH;
-    $db = new PDO("sqlite:$DB_PATH");
-    $res = $db -> query("select fork_count from \"$table_name\" limit 1;");
-    foreach ($res as $row) {
-        return $row['fork_count'];
+    try {
+        $db = new PDO("sqlite:$DB_PATH");
+        $res = $db -> query("select fork_count from \"$table_name\" limit 1;");
+        foreach ($res as $row) {
+            return $row['fork_count'];
+        }
+    }
+    catch(PDOException $e) {
+        return 0;
     }
      
+}
+
+function get_commit_chart_data_db($table_name, $start, $end) {
+    global $DB_PATH;
+
+    function format_data($data){
+
+        $m = Array();
+        $m['labels'] = $data['dates'];
+
+        $m['datasets'] = Array();
+        $m['datasets'][] = mk_dataset('Commits', '#01a64a', $data['commits']);
+
+        return $m;
+    }
+
+    try {
+        $db = new PDO("sqlite:$DB_PATH");
+        $start .= 'T00:00:00Z'; 
+        $end .= 'T00:00:00Z';
+
+        $res = $db -> query("select * from \"$table_name\" where timestamp>=\"$start\" and timestamp<=\"$end\" order by timestamp;");
+
+        $dates = [];
+        $commits = [];
+
+        foreach ($res as $row) {
+            $dates[] = substr($row['timestamp'], 0, 10);
+            $commits[] = $row['commits'];
+        }
+
+        $data = ['dates' => $dates, 'commits' => $commits];
+        $chart_data = format_data($data);
+    
+    }
+    catch(PDOException $e) {
+        $chart_data = ["message" => $e->getMessage()];
+    }
+    return $chart_data;
+
 }
 
 function get_commit_chart_data($url, $args) {
@@ -775,10 +820,9 @@ function get_metric_data($request) {
         $data = get_freq_chart_data_db($table_name, $start, $end);
     }
     else if ($metric == "commits") {
-        //$url .= "&since=2022-08-01T00:00:00Z&until=2022-09-06T00:00:00Z";
-        //$url .= "&since=2021-08-01T00:00:00Z&until=2022-08-01T00:00:00Z";
-        $url .= "&since={$start}T00:00:00Z&until={$end}T00:00:00Z";
-        $data = get_commit_chart_data($url, $args);
+        //$url .= "&since={$start}T00:00:00Z&until={$end}T00:00:00Z";
+        //$data = get_commit_chart_data($url, $args);
+        $data = get_commit_chart_data_db($table_name, $start, $end);
     }
     else if ($metric == "releases") {
         $data = get_release_data($url, $args);
