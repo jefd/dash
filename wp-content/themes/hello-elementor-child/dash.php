@@ -357,6 +357,49 @@ function get_clone_chart_data_db($table_name, $start, $end) {
     return $chart_data;
 }
 
+function get_freq_chart_data_db($table_name, $start, $end) {
+    global $DB_PATH;
+
+    function format_data($data){
+
+        $m = Array();
+        $m['labels'] = $data['dates'];
+
+        $m['datasets'] = Array();
+        $m['datasets'][] = mk_dataset('Additions', '#d87203', $data['additions']);
+        $m['datasets'][] = mk_dataset('Deletions', '#01a64a', $data['deletions']);
+
+        return $m;
+    }
+
+    try {
+
+        $db = new PDO("sqlite:$DB_PATH");
+        $start .= 'T00:00:00Z'; 
+        $end .= 'T00:00:00Z';
+
+        $res = $db -> query("select * from \"$table_name\" where timestamp>=\"$start\" and timestamp<=\"$end\" order by timestamp;");
+
+        $dates = [];
+        $additions = [];
+        $deletions = [];
+
+        foreach ($res as $row) {
+            $dates[] = substr($row['timestamp'], 0, 10);
+            $additions[] = $row['additions'];
+            $deletions[] = $row['deletions'];
+        }
+
+        $data = ['dates' => $dates, 'additions' => $additions, 'deletions' => $deletions];
+        $chart_data = format_data($data);
+    
+    }
+    catch(PDOException $e) {
+        $chart_data = ["message" => $e->getMessage()];
+    }
+    return $chart_data;
+
+}
 function get_freq_chart_data($url, $args, $start, $end) {
 
     function get_data($body){
@@ -728,7 +771,8 @@ function get_metric_data($request) {
         $data['fork_count'] = $fork_count;
     }
     else if ($metric == "frequency") {
-        $data = get_freq_chart_data($url, $args, $start, $end);
+        //$data = get_freq_chart_data($url, $args, $start, $end);
+        $data = get_freq_chart_data_db($table_name, $start, $end);
     }
     else if ($metric == "commits") {
         //$url .= "&since=2022-08-01T00:00:00Z&until=2022-09-06T00:00:00Z";
