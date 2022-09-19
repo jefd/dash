@@ -2,7 +2,7 @@
 
 require 'token.php';
 
-$VERSION = 'v1.0.6';
+$VERSION = 'v2.0.0';
 
 
 $DB_PATH = dirname(__FILE__) . '/metrics.db';
