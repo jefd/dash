@@ -308,18 +308,18 @@ function Dash(initialVnode) {
             let c = d['count'];
             let u = d['uniques'];
 
-            return m("div.stats-container2", 
+            return m("div.stats-container", 
                 [
-                    m("div.stat-wrapper2", 
+                    m("div.stat-wrapper", 
                     [
-                        m("div.stat-label2", `Total ${name}`),
-                        m("div.stat-value2", `${c}`)
+                        m("div.stat-label", `Total ${name}`),
+                        m("div.stat-value", `${c}`)
 
                     ]),
-                    m("div.stat-wrapper2", 
+                    m("div.stat-wrapper", 
                     [
-                        m("div.stat-label2", `Unique ${name}`),
-                        m("div.stat-value2", `${u}`)
+                        m("div.stat-label", `Unique ${name}`),
+                        m("div.stat-value", `${u}`)
 
                     ]),
                 
@@ -333,24 +333,24 @@ function Dash(initialVnode) {
             let u = d['uniques'];
             let f = d['fork_count'];
 
-            return m("div.stats-container2", 
+            return m("div.stats-container", 
                 [
-                    m("div.stat-wrapper2", 
+                    m("div.stat-wrapper", 
                     [
-                        m("div.stat-label2", `Total ${name}`),
-                        m("div.stat-value2", `${c}`)
+                        m("div.stat-label", `Total ${name}`),
+                        m("div.stat-value", `${c}`)
 
                     ]),
-                    m("div.stat-wrapper2", 
+                    m("div.stat-wrapper", 
                     [
-                        m("div.stat-label2", `Unique ${name}`),
-                        m("div.stat-value2", `${u}`)
+                        m("div.stat-label", `Unique ${name}`),
+                        m("div.stat-value", `${u}`)
 
                     ]),
-                    m("div.stat-wrapper2", 
+                    m("div.stat-wrapper", 
                     [
-                        m("div.stat-label2", 'Forks'),
-                        m("div.stat-value2", `${f}`)
+                        m("div.stat-label", 'Forks'),
+                        m("div.stat-value", `${f}`)
 
                     ]),
                 

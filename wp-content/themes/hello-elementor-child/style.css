@@ -35,21 +35,21 @@ Tags: flexible-header, custom-colors, custom-menu, custom-logo, editor-style, fe
 
 
 /******************* Metric Data *******************/
- .stats-container2 {
+ .stats-container {
    text-align: left;
     padding-top:14px;
     padding-bottom:20px;
 }
- .stat-wrapper2 {
+ .stat-wrapper {
    display: inline-block;
    text-align: left;
    margin-left: 10px;
    margin-right: 50px;
  }
- .stat-wrapper2:nth-last-of-type {
+ .stat-wrapper:nth-last-of-type {
    margin-right: 10px;
  }
- .stat-wrapper2 .stat-label2 {
+ .stat-wrapper .stat-label {
     color: #358890;
     font-size: 17px;
     font-weight: 700;
@@ -60,7 +60,7 @@ Tags: flexible-header, custom-colors, custom-menu, custom-logo, editor-style, fe
     text-transform: uppercase;
  }
 
- .stat-wrapper2 .stat-value2 {
+ .stat-wrapper .stat-value {
     color: #094293;
     font-size: 30px;
     font-weight: 500;
