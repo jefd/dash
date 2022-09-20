@@ -1,6 +1,6 @@
 //const BASE_URL =  "https://epic.noaa.gov";
-const BASE_URL =  "https://rayv-webix4.jpl.nasa.gov/devel/ep";
-//const BASE_URL =  "";
+//const BASE_URL =  "https://rayv-webix4.jpl.nasa.gov/devel/ep";
+const BASE_URL =  "";
 const API_PATH = "/wp-json/dash/v1";
 
 const INITIAL_OWNER = "ufs-community";
