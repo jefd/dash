@@ -787,6 +787,12 @@ function get_metric_data($request) {
 
     $start = $request->get_param('start');
     $end = $request->get_param('end');
+
+    if (!$start)
+        $start = '1970-01-01';
+
+    if (!$end) 
+        $end = '2050-01-01';
     
     $dl = $request->get_param('dl');
 
