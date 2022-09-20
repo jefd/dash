@@ -1,6 +1,6 @@
 //const BASE_URL =  "https://epic.noaa.gov";
-//const BASE_URL =  "https://rayv-webix4.jpl.nasa.gov/devel/ep";
-const BASE_URL =  "";
+const BASE_URL =  "https://rayv-webix4.jpl.nasa.gov/devel/ep";
+//const BASE_URL =  "";
 const API_PATH = "/wp-json/dash/v1";
 
 const INITIAL_OWNER = "ufs-community";
@@ -433,6 +433,8 @@ function Dash(initialVnode) {
     }
 
     function startDateCallback(e) {
+        model.showDLink = false;
+
         model.startDate = e.target.value;
         if (! model.startDate ){
             if (model.selectedMetric == "views" ||  model.selectedMetric == "clones") 
@@ -443,6 +445,7 @@ function Dash(initialVnode) {
     }
 
     function endDateCallback(e) {
+        model.showDLink = false;
         model.endDate = e.target.value;
         if (! model.endDate )
             model.endDate = getMaxDate();
