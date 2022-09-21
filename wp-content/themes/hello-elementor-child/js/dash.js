@@ -1,6 +1,6 @@
 //const BASE_URL =  "https://epic.noaa.gov";
-//const BASE_URL =  "https://rayv-webix4.jpl.nasa.gov/devel/ep";
-const BASE_URL =  "";
+const BASE_URL =  "https://rayv-webix4.jpl.nasa.gov/devel/ep";
+//const BASE_URL =  "";
 const API_PATH = "/wp-json/dash/v1";
 
 const INITIAL_OWNER = "ufs-community";
@@ -572,8 +572,9 @@ function Dash(initialVnode) {
         }
         
         let max = getMaxDate();
-        let startLabel = m("label", {for: 'start'}, "Start Date");
-        let endLabel = m("label", {for: 'end'}, "End Date");
+        let st = {visibility: model.showDatePicker ? "visible" : "hidden"};
+        let startLabel = m("label", {for: 'start', style: st}, "Start Date");
+        let endLabel = m("label", {for: 'end', style: st}, "End Date");
         let startDp = datePickerView('start', model.startDate, model.minDate, max, startDateCallback);
         let endDp = datePickerView('end', model.endDate, model.minDate, max, endDateCallback);
 
