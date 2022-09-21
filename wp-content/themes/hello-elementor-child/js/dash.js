@@ -572,10 +572,12 @@ function Dash(initialVnode) {
         }
         
         let max = getMaxDate();
+        let startLabel = m("label", {for: 'start'}, "Start Date");
+        let endLabel = m("label", {for: 'end'}, "End Date");
         let startDp = datePickerView('start', model.startDate, model.minDate, max, startDateCallback);
         let endDp = datePickerView('end', model.endDate, model.minDate, max, endDateCallback);
 
-        let frm = formView('dash-form', 'dash-form', [repoLabel, repoSelect, metricLabel, metricSelect, startDp, endDp, btn]);
+        let frm = formView('dash-form', 'dash-form', [repoLabel, repoSelect, metricLabel, metricSelect, startLabel, startDp, endLabel, endDp, btn]);
 
         let dv = null;
 
