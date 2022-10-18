@@ -91,8 +91,8 @@ function get_repo_list($response) {
 /************************************* Constants *******************************************/
 // map of repos to tokens
 $REPOS = [
-    ["owner" => "ufs-community", "name" => "ufs-weather-model", "token" => $TOKEN],
-    ["owner" => "ufs-community", "name" => "ufs-srweather-app", "token" => $TOKEN],
+    ["owner" => "ufs-community", "name" => "ufs-weather-model", "token" => $GITHUB_TOKEN],
+    ["owner" => "ufs-community", "name" => "ufs-srweather-app", "token" => $GITHUB_TOKEN],
 ];
 
 // map of metric name to GitHub API path
