@@ -1,11 +1,11 @@
 /* 
-Theme Name: Hello Elementor Child
+Theme Name: Hello Elementor Child 2
 Theme URI: https://github.com/elementor/hello-theme/
 Description: Hello Elementor Child is a child theme of Hello Elementor, created by Elementor team
 Author: Elementor Team
 Author URI: https://elementor.com/
 Template: hello-elementor
-Version: 1.0.1
+Version: 2.0.4
 Text Domain: hello-elementor-child
 License: GNU General Public License v3 or later.
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -35,21 +35,21 @@ Tags: flexible-header, custom-colors, custom-menu, custom-logo, editor-style, fe
 
 
 /******************* Metric Data *******************/
- .stats-container2 {
+ .stats-container {
    text-align: left;
     padding-top:14px;
     padding-bottom:20px;
 }
- .stat-wrapper2 {
+ .stat-wrapper {
    display: inline-block;
    text-align: left;
    margin-left: 10px;
    margin-right: 50px;
  }
- .stat-wrapper2:nth-last-of-type {
+ .stat-wrapper:nth-last-of-type {
    margin-right: 10px;
  }
- .stat-wrapper2 .stat-label2 {
+ .stat-wrapper .stat-label {
     color: #358890;
     font-size: 17px;
     font-weight: 700;
@@ -60,7 +60,7 @@ Tags: flexible-header, custom-colors, custom-menu, custom-logo, editor-style, fe
     text-transform: uppercase;
  }
 
- .stat-wrapper2 .stat-value2 {
+ .stat-wrapper .stat-value {
     color: #094293;
     font-size: 30px;
     font-weight: 500;
@@ -138,3 +138,116 @@ Tags: flexible-header, custom-colors, custom-menu, custom-logo, editor-style, fe
 }
 /******************* Metric Data *******************/
 
+
+
+#dash-form button, #dash-form input[type="button"], #dash-form input[type="submit"], #dash-form  .elementor-button {
+    font-family: "proxima-nova", Sans-serif;
+    font-weight: 600;
+    color: #FFFFFF;
+    background-color: #0099D8;
+    border-radius: 0px 0px 0px 0px;
+}
+
+#dash-form label:nth-of-type(3),#dash-form label:nth-of-type(4), #dash-form input#start[type=date], #dash-form input#end[type=date]{
+    width: 15%;
+}
+#dash-form label:nth-of-type(3), #dash-form input#start[type=date] {
+    left: Calc(50% + 40px);
+}
+#dash-form label:nth-of-type(4), #dash-form input#end[type=date] {
+    left: Calc(65% + 50px);
+}
+#dash-form input {
+    top: 26px;
+    position: absolute;
+}
+#dash-form input {
+    color: #0A4595;
+    font-size: 18px;
+    font-weight: 600;
+}
+#dash-form + a {
+    clear: both;
+     color: #0A4595;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: underline;
+    display: block; 
+    text-align: center;
+    margin-right: auto;
+    margin-left: auto;
+    margin-top: -10px;
+    margin-bottom: 10px;
+  }
+
+
+
+/*overwrite*/
+#dash-form label, #dash-form select {
+    width: 25%;
+}
+#dash-form label:nth-of-type(2), #dash-form select:nth-of-type(2) {
+    left: Calc(25% + 10px);
+}
+#dash-form button {
+    left: Calc(80% + 80px);
+}
+#dash-form select, #dash-form input, #dash-form button {
+    height:42px;
+}
+@media screen and (max-width: 899px){
+    #dash-form {
+        /*height:240px;*/
+        height:400px;
+    }
+    #dash-form label:nth-of-type(1), #dash-form select:nth-of-type(1),
+    #dash-form label:nth-of-type(2), #dash-form select:nth-of-type(2),
+    #dash-form label:nth-of-type(3), #dash-form input#start[type=date],
+    #dash-form label:nth-of-type(4), #dash-form input#end[type=date],
+    #dash-form button {
+        display:block;
+        position: relative;
+        top: auto;
+        left: 0px;
+        margin-left:auto;
+        margin-right: auto;
+    }
+    #dash-form label:nth-of-type(1), #dash-form select:nth-of-type(1),
+    #dash-form label:nth-of-type(2), #dash-form select:nth-of-type(2),
+    #dash-form label:nth-of-type(3), #dash-form input#start[type=date],
+    #dash-form label:nth-of-type(4), #dash-form input#end[type=date] {
+        width:100%;
+        top: auto;
+        left: 0px;
+    }
+    #dash-form label {
+        margin-bottom: 7px;
+    }
+    #dash-form select, #dash-form input, #dash-form button {
+        margin-bottom: 20px;
+    }
+}
+
+
+
+
+/*webix4 specific. don't need to move that to prod*/
+#dash-form button, #dash-form input[type="button"], #dash-form input[type="submit"], #dash-form  .elementor-button {
+    font-family: "proxima-nova", Sans-serif;
+    font-weight: 600;
+    color: #FFFFFF;
+    background-color: #0099D8;
+    border-radius: 0px 0px 0px 0px;
+}
+.elementor-section.elementor-element-db09e99 {
+    background-color:#F5F5F5;
+}
+#chart, .chart-box {
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    background: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 22px 35px -16px rgb(0 0 0 / 10%);
+}

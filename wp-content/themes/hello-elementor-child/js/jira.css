@@ -1,0 +1,32 @@
+.button{
+  display: inline-block;
+  background: #000;
+  border-radius: 4px;
+  font-family: "arial-black";
+  font-size: 14px;
+  color: #FFF;
+  padding: 8px 12px;
+  cursor: pointer;   
+}
+
+.button2{
+  display: inline-block;
+  background: #FFF;
+  border-radius: 4px;
+  font-family: "arial-black";
+  font-size: 14px;
+  color: #000;
+  padding: 8px 12px;
+  cursor: pointer;   
+}
+
+.button{
+    display: inline-block;
+    font-family: "proxima-nova", Sans-serif;
+    /*font-weight: 600;*/
+    color: #FFFFFF;
+    background-color: #0099D8;
+    border-radius: 0px 0px 0px 0px;
+    cursor: pointer;   
+    padding: 8px 12px;
+}
