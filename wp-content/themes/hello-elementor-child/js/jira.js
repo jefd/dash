@@ -123,7 +123,7 @@ function Jira(initialVnode) {
 
         if (model.system) {
             for (item of model.system) {
-                model.formData.append('system', item);
+                model.formData.append('system[]', item);
             }
         }
 
@@ -134,9 +134,10 @@ function Jira(initialVnode) {
 
         let files = Object.values(model.fileMap);
         for (file of files) {
-            model.formData.append('files', file);
+            model.formData.append('files[]', file);
         }
 
+        /*
         console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
         //console.log(model.formData.getAll('files'));
         //console.log(model.formData);
@@ -144,8 +145,22 @@ function Jira(initialVnode) {
             console.log(value);
         }
         console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+        */
 
-
+        m.request({
+            method: "POST",
+            url: URL,
+            //params: {id: 1},
+            body: model.formData
+        })
+        .then(function(result) {
+            console.log('xxxxxxxxxxx Result xxxxxxxxxxxxxx');
+            console.log(result)
+            console.log('xxxxxxxxxxx Result xxxxxxxxxxxxxx');
+        })
+        .catch(function(e) {
+            model.error = "Error loading data";
+        })
 
         //let url = getUrl();
         //updateData(url);
