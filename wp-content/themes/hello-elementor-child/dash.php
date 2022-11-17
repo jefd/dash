@@ -2,7 +2,7 @@
 
 require 'token.php';
 
-$VERSION = 'v2.0.4';
+$VERSION = 'v2.0.5';
 
 $DB_PATH = dirname(__FILE__) . '/metrics.db';
 
@@ -19,7 +19,7 @@ function metrics_dash_board($atts) {
 }
 
 add_action('rest_api_init', function () {
-    register_rest_route( 'dash/v1', '/(?P<owner>[a-z-]+)/(?P<repo>[a-z-]+)/(?P<metric>[a-z-]+)',array(
+    register_rest_route( 'dash/v1', '/(?P<owner>[a-z-_]+)/(?P<repo>[a-z-_]+)/(?P<metric>[a-z-]+)',array(
         'methods'  => 'GET',
         'callback' => 'get_metric_data'
     ));
@@ -89,8 +89,10 @@ function get_repo_list($response) {
 /************************************* Constants *******************************************/
 // map of repos to tokens
 $REPOS = [
-    ["owner" => "ufs-community", "name" => "ufs-weather-model", "token" => $GITHUB_TOKEN],
-    ["owner" => "ufs-community", "name" => "ufs-srweather-app", "token" => $GITHUB_TOKEN],
+    ["owner" => "ufs-community", "name" => "ufs-weather-model", "token" => $TOKEN],
+    ["owner" => "ufs-community", "name" => "ufs-srweather-app", "token" => $TOKEN],
+    ["owner" => "ufs-community", "name" => "ufs-mrweather-app", "token" => $TOKEN],
+    ["owner" => "ufs-community", "name" => "regional_workflow", "token" => $TOKEN],
 ];
 
 // map of metric name to GitHub API path

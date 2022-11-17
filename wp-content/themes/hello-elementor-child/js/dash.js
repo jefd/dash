@@ -54,6 +54,8 @@ const METRICS = [
 const REPO_TITLES = [
     {owner: 'ufs-community', name: 'ufs-weather-model', title: 'Weather Model'}, 
     {owner: 'ufs-community', name: 'ufs-srweather-app', title: 'Short Range Weather App'}, 
+    {owner: 'ufs-community', name: 'ufs-mrweather-app', title: 'Medium Range Weather App'}, 
+    {owner: 'ufs-community', name: 'regional_workflow', title: 'Regional Workflow'}, 
 ];
 
 
